@@ -1,5 +1,6 @@
 class ImageAssets {
   static const String _imagePath = 'assets/images';
+  static const String banner_img = '$_imagePath/banner.png';
 }
 
 class SvgAssets {

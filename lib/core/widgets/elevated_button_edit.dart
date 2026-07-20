@@ -8,23 +8,36 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ElevatedButtonEdit extends StatelessWidget {
   final String title;
   final VoidCallback? onPressed;
-  const ElevatedButtonEdit({super.key, required this.title, this.onPressed});
+  final double? height;
+  final double? wight;
+  final Color? textColor;
+  final Color? backgroundColor;
+  const ElevatedButtonEdit({
+    super.key,
+    required this.title,
+    this.onPressed,
+    this.height,
+    this.wight, this.textColor, this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(MediaQuery.of(context).size.width, Sizes.s60.h),
+        fixedSize: Size(
+          wight ?? MediaQuery.of(context).size.width,
+          height ?? Sizes.s60.h,
+        ),
         shape: ContinuousRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(Insets.s14.sp),
         ),
-        backgroundColor: ColorManager.white,
+        backgroundColor: backgroundColor ?? ColorManager.white,
       ),
       onPressed: onPressed,
       child: Text(
         title,
         style: getSemiBoldStyle(
-          color: ColorManager.text,
+          color: textColor ?? ColorManager.text,
           fontsize: FontSize.s20,
         ),
       ),

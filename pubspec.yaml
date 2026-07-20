@@ -24,6 +24,8 @@ dependencies:
   dartz: ^0.10.1
   get_it: ^9.2.1
   injectable: ^3.0.0
+  carousel_slider: ^5.1.2
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +41,7 @@ flutter:
 
   assets:
     - assets/svgs/
+    - assets/images/
 
   fonts:
     - family: Poppins

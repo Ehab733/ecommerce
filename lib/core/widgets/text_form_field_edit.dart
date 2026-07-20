@@ -12,14 +12,20 @@ class TextFormFieldEdit extends StatefulWidget {
   final TextInputType? keyboardType;
   final bool isPassword;
   final int? maxLength;
+  final bool prefixIcon;
+  final Icon? icon;
+  final double? radius;
   const TextFormFieldEdit({
     super.key,
     this.isPassword = false,
     this.maxLength,
+    this.prefixIcon = false,
     required this.controller,
     this.keyboardType,
     required this.label,
     this.validator,
+    this.icon,
+    this.radius,
   });
 
   @override
@@ -37,16 +43,19 @@ class _TextFormFieldEditState extends State<TextFormFieldEdit> {
         fillColor: ColorManager.white,
         filled: true,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Insets.s14.sp),
+          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.sp),
+          borderSide: BorderSide(color: ColorManager.primary),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Insets.s14.sp),
+          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.sp),
+          borderSide: BorderSide(color: ColorManager.primary),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Insets.s14.sp),
+          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.sp),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Insets.s14.sp),
+          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.sp),
+          borderSide: BorderSide(color: ColorManager.primary),
         ),
         hintText: widget.label,
         hintStyle: getLightStyle(
@@ -57,6 +66,7 @@ class _TextFormFieldEditState extends State<TextFormFieldEdit> {
           color: ColorManager.error,
           fontsize: FontSize.s16,
         ),
+        prefixIcon: widget.prefixIcon ? widget.icon : null,
         suffixIcon: widget.isPassword
             ? hidePassword
                   ? IconButton(
