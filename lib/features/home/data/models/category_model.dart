@@ -3,26 +3,28 @@ class CategoryModel {
   final String name;
   final String slug;
   final String image;
-  final String createdAt;
-  final String updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const CategoryModel({
     required this.id,
     required this.name,
     required this.slug,
     required this.image,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  factory CategoryModel.fromJson(Map<String, dynamic> json) {
-    return CategoryModel(
-      id: json['_id'],
-      name: json['name'],
-      slug: json['slug'],
-      image: json['image'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-    );
-  }
+  factory CategoryModel.fromJson(Map<String, dynamic> json) => CategoryModel(
+    id: json['_id'],
+    name: json['name'],
+    slug: json['slug'],
+    image: json['image'],
+    createdAt: json['createdAt'] == null
+        ? null
+        : DateTime.parse(json['createdAt'] as String),
+    updatedAt: json['updatedAt'] == null
+        ? null
+        : DateTime.parse(json['updatedAt'] as String),
+  );
 }

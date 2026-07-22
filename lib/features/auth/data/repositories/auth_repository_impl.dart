@@ -9,6 +9,7 @@ import 'package:ecommerce/features/auth/data/models/register/register_request.da
 import 'package:ecommerce/features/auth/domain/entities/user.dart';
 import 'package:ecommerce/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:logger/web.dart';
 
 @Singleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -24,6 +25,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.setToken(response.token);
       return Right(response.user.toEntity);
     } on AppException catch (error) {
+      Logger().d(error.message);
       return Left(Failure(error.message));
     }
   }
@@ -35,6 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.setToken(response.token);
       return Right(response.user.toEntity);
     } on AppException catch (error) {
+      Logger().d(error.message);
       return Left(Failure(error.message));
     }
   }

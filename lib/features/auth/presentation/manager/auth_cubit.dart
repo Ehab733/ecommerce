@@ -3,7 +3,7 @@ import 'package:ecommerce/features/auth/data/models/register/register_request.da
 import 'package:ecommerce/features/auth/domain/useCases/login_usecase.dart';
 import 'package:ecommerce/features/auth/domain/useCases/register_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ecommerce/features/auth/presentation/manager/auth/auth_state.dart';
+import 'package:ecommerce/features/auth/presentation/manager/auth_state.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/web.dart';
 

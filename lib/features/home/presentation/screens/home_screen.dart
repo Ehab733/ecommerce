@@ -1,54 +1,51 @@
-// lib/features/home/presentation/screens/home_screen.dart
+import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/widgets/custom_bottom_nav_bar.dart';
-import 'package:ecommerce/core/widgets/produc_cart.dart';
-import 'package:ecommerce/features/home/presentation/widgets/categories_section.dart';
-import 'package:ecommerce/features/home/presentation/widgets/custom_header.dart';
-import 'package:ecommerce/features/home/presentation/widgets/main_banner.dart';
-import 'package:ecommerce/features/home/presentation/widgets/section_header.dart';
+import 'package:ecommerce/core/widgets/custom_search.dart';
+import 'package:ecommerce/features/home/presentation/screens/home_screen_content.dart';
+import 'package:ecommerce/core/widgets/custom_header.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int currentIndex = 0;
+
+  // 2. قائمة الصفحات الأساسية في التطبيق
+  final List<Widget> screens = [
+    const HomeScreenContent(),
+    const HomeScreenContent(),
+    const HomeScreenContent(),
+    const HomeScreenContent(),
+  ];
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: customHeader(),
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(
+          SliverAppBar(
             pinned: true,
-            toolbarHeight: 120,
-            backgroundColor: Colors.white,
-            flexibleSpace: FlexibleSpaceBar(background: CustomHeader()),
+            toolbarHeight: 80.h,
+            backgroundColor: ColorManager.white,
+            title: customSearch(),
           ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              const MainBanner(),
-              const CategoriesSection(),
-              const SectionHeader(title: "Home Appliance"),
-              productHorizontalList(),
-              const SectionHeader(title: "New Arrival"),
-              productHorizontalList(),
-            ]),
-          ),
+
+          screens[currentIndex],
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(),
+      bottomNavigationBar: CustomBottomNavBar(
+        onTap: (index) {
+          currentIndex = index;
+        },
+        currentIndex: currentIndex,
+      ),
     );
   }
-}
-
-Widget productHorizontalList() {
-  return SizedBox(
-    height: 230, // ارتفاع ثابت للـ List لضمان عرض الـ Cards بشكل كامل
-    child: ListView.builder(
-      scrollDirection: Axis.horizontal, // التمرير الأفقي
-      itemCount: 6, // عدد المنتجات التي ستظهر
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      itemBuilder: (context, index) {
-        return const ProductCard(); // استدعاء الكارد الواحد
-      },
-    ),
-  );
 }

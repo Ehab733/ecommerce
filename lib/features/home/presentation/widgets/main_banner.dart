@@ -1,3 +1,6 @@
+import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
+import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +11,8 @@ class MainBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 180,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      height: 200.h,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12).r,
       decoration: BoxDecoration(
         color: Colors.amberAccent, // اللون الأصفر الخاص بالبنر
         borderRadius: BorderRadius.circular(15),
@@ -19,40 +22,49 @@ class MainBanner extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0).r,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               "UP TO",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const Text(
-              "25% OFF",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-                color: Color(0xFF004182),
+              style: getBoldStyle(
+                color: ColorManager.primary,
+                fontsize: FontSize.s22,
               ),
             ),
-            const Text(
+            Text(
+              "25% OFF",
+              style: getBoldStyle(
+                color: ColorManager.primary,
+                fontsize: FontSize.s22,
+              ),
+            ),
+            Text(
               "For all Headphones\n& AirPods",
-              style: TextStyle(fontSize: 14),
+              style: getRegularStyle(
+                color: ColorManager.primary,
+                fontsize: FontSize.s14,
+              ),
             ),
             SizedBox(height: Sizes.s12.h),
             Expanded(
               child: ElevatedButton(
                 onPressed: () {},
+
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF004182),
+                  backgroundColor: ColorManager.primary,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(Insets.s20.r),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Shop Now",
-                  style: TextStyle(color: Colors.white),
+                  style: getRegularStyle(
+                    color: ColorManager.white,
+                    fontsize: FontSize.s14,
+                  ),
                 ),
               ),
             ),

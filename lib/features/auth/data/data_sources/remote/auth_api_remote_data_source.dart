@@ -7,6 +7,7 @@ import 'package:ecommerce/features/auth/data/models/login/login_response.dart';
 import 'package:ecommerce/features/auth/data/models/register/register_request.dart';
 import 'package:ecommerce/features/auth/data/models/register/register_response.dart';
 import 'package:injectable/injectable.dart';
+import 'package:logger/web.dart';
 
 @Singleton(as: AuthRemoteDataSource)
 class AuthApiRemoteDataSource implements AuthRemoteDataSource {
@@ -21,12 +22,27 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
         data: request.toJson(),
       );
       return LoginResponse.fromJson(response.data);
-    } catch (error) {
+    } on DioException catch (error) {
       String? message;
-      if (error is DioException) {
-        message = error.response?.data['message'];
+
+      // 1️⃣ فحص جميع المسميات الشائعة لرسائل الخطأ من الـ API
+      if (error.response?.data is Map) {
+        final data = error.response!.data as Map<String, dynamic>;
+        message = data['message'] ?? data['statusMsg'] ?? data['error'];
       }
-      throw RemoteException(message ?? 'An unexpected error occurred');
+
+      Logger().e("DioError: ${error.response?.statusCode} -> $message");
+      throw RemoteException(
+        message ?? error.message ?? 'حدث خطأ في الاتصال بالشبكة',
+      );
+    } catch (error, stackTrace) {
+      // 2️⃣ طباعة خطأ الـ Parsing الحقيقي في الـ Console مع الـ StackTrace
+      Logger().e(
+        "Parsing/Model Error: $error",
+        error: error,
+        stackTrace: stackTrace,
+      );
+      throw RemoteException('حدث خطأ أثناء تحويل البيانات: $error');
     }
   }
 
@@ -38,12 +54,27 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
         data: request.toJson(),
       );
       return RegisterResponse.fromJson(response.data);
-    } catch (error) {
+    } on DioException catch (error) {
       String? message;
-      if (error is DioException) {
-        message = error.response?.data['message'];
+
+      // 1️⃣ فحص جميع المسميات الشائعة لرسائل الخطأ من الـ API
+      if (error.response?.data is Map) {
+        final data = error.response!.data as Map<String, dynamic>;
+        message = data['message'] ?? data['statusMsg'] ?? data['error'];
       }
-      throw RemoteException(message ?? 'An unexpected error occurred');
+
+      Logger().e("DioError: ${error.response?.statusCode} -> $message");
+      throw RemoteException(
+        message ?? error.message ?? 'حدث خطأ في الاتصال بالشبكة',
+      );
+    } catch (error, stackTrace) {
+      // 2️⃣ طباعة خطأ الـ Parsing الحقيقي في الـ Console مع الـ StackTrace
+      Logger().e(
+        "Parsing/Model Error: $error",
+        error: error,
+        stackTrace: stackTrace,
+      );
+      throw RemoteException('حدث خطأ أثناء تحويل البيانات: $error');
     }
   }
 }

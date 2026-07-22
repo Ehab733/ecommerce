@@ -2,7 +2,7 @@ import 'package:ecommerce/core/app_bloc_observer.dart';
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/routes/route_generator.dart';
 import 'package:ecommerce/core/routes/routes.dart';
-import 'package:ecommerce/features/auth/presentation/manager/auth/auth_cubit.dart';
+import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,7 +28,7 @@ class EcommerceApp extends StatelessWidget {
         builder: (_, child) => MaterialApp(
           debugShowCheckedModeBanner: false,
           onGenerateRoute: RouteGenerator.getRoute,
-          initialRoute: Routes.home,
+          initialRoute: Routes.login,
         ),
       ),
     );
