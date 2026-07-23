@@ -3,10 +3,10 @@ import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:flutter/material.dart';
 
-PreferredSizeWidget customHeader([
+PreferredSizeWidget customHeader({
   List<Widget>? actions,
   String title = 'PixelForge',
-]) => AppBar(
+}) => AppBar(
   backgroundColor: ColorManager.white,
   foregroundColor: ColorManager.appBarTitle,
   title: Text(

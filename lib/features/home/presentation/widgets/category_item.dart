@@ -16,8 +16,8 @@ class CategoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, Routes.products, arguments: _category.id);
-        Logger().d(_category.id);
+        Navigator.pushNamed(context, Routes.products, arguments: _category);
+        Logger().d(_category);
       },
       child: SizedBox(
         height: 200.h, // ارتفاع كافٍ لصفين مع النصوص

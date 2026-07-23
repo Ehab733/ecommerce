@@ -2,8 +2,10 @@ import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
+import 'package:ecommerce/core/utils/ui_utils.dart';
 import 'package:ecommerce/core/widgets/bottom_bar.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
+import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
 import 'package:ecommerce/features/product/domain/entities/product.dart';
 import 'package:ecommerce/features/product/presentation/manager/product_cubit.dart';
 import 'package:ecommerce/features/product/presentation/widgets/product_color_selector.dart';
@@ -45,24 +47,29 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       create: (_) => _productCubit,
       child: Scaffold(
         backgroundColor: ColorManager.white,
-        appBar: customHeader([
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.search,
-              size: Sizes.s24.r,
-              color: ColorManager.primary,
+        appBar: customHeader(
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.search,
+                size: Sizes.s24.r,
+                color: ColorManager.primary,
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.shopping_cart_outlined,
-              size: Sizes.s24.r,
-              color: ColorManager.primary,
+            IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, Routes.cart);
+              },
+              icon: Icon(
+                Icons.shopping_cart_outlined,
+                size: Sizes.s24.r,
+                color: ColorManager.primary,
+              ),
             ),
-          ),
-        ], product.brand.name),
+          ],
+          title: product.brand.name,
+        ),
         body: CustomScrollView(
           slivers: [
             SliverPadding(
@@ -132,8 +139,22 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           builder: (context, state) {
             return BottomBar(
               totalPrice: "EGP ${(product.price * _quantity).toString()}",
-              onClicked: () {
-                Navigator.pushNamed(context, Routes.cart);
+              onClicked: () async {
+                UiUtils.showLoading(context);
+                try {
+                  final cartCubit = context.read<CartCubit>();
+                  await cartCubit.addToCart(product.id);
+                  await cartCubit.updateCart(product.id, _quantity);
+
+                  if (context.mounted) {
+                    UiUtils.hideLoading(context);
+                    Navigator.pushNamed(context, Routes.cart);
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    UiUtils.hideLoading(context);
+                  }
+                }
               },
               title: 'Add to cart',
               iconLeading: Icons.add_shopping_cart,

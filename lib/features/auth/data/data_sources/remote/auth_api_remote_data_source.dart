@@ -33,7 +33,7 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
 
       Logger().e("DioError: ${error.response?.statusCode} -> $message");
       throw RemoteException(
-        message ?? error.message ?? 'حدث خطأ في الاتصال بالشبكة',
+        message ?? error.message ?? 'A network connection error occurred.',
       );
     } catch (error, stackTrace) {
       // 2️⃣ طباعة خطأ الـ Parsing الحقيقي في الـ Console مع الـ StackTrace
@@ -42,7 +42,7 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
         error: error,
         stackTrace: stackTrace,
       );
-      throw RemoteException('حدث خطأ أثناء تحويل البيانات: $error');
+      throw RemoteException('An error occurred while converting the data: $error');
     }
   }
 
@@ -65,7 +65,7 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
 
       Logger().e("DioError: ${error.response?.statusCode} -> $message");
       throw RemoteException(
-        message ?? error.message ?? 'حدث خطأ في الاتصال بالشبكة',
+        message ?? error.message ?? 'A network connection error occurred.',
       );
     } catch (error, stackTrace) {
       // 2️⃣ طباعة خطأ الـ Parsing الحقيقي في الـ Console مع الـ StackTrace
@@ -74,7 +74,7 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
         error: error,
         stackTrace: stackTrace,
       );
-      throw RemoteException('حدث خطأ أثناء تحويل البيانات: $error');
+      throw RemoteException('An error occurred while converting the data: $error');
     }
   }
 }

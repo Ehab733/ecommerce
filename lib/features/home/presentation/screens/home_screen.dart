@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
             pinned: true,
             toolbarHeight: 80.h,
             backgroundColor: ColorManager.white,
-            title: customSearch(),
+            title: customSearch(context),
           ),
 
           screens[currentIndex],

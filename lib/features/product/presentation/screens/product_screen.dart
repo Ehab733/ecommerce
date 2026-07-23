@@ -5,6 +5,7 @@ import 'package:ecommerce/core/widgets/error_indicator.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:ecommerce/core/widgets/product_cart.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
+import 'package:ecommerce/features/home/domain/entities/category.dart';
 import 'package:ecommerce/features/product/presentation/manager/product_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,12 +17,12 @@ class ProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final categoryId = ModalRoute.of(context)!.settings.arguments as String;
-    Logger().d(categoryId);
+    final category = ModalRoute.of(context)!.settings.arguments as Category;
+    Logger().d('Category ID :   ${category.id}');
     return BlocProvider(
-      create: (context) => getIt.get<ProductCubit>()..getProducts(categoryId),
+      create: (context) => getIt.get<ProductCubit>()..getProducts(category.id),
       child: Scaffold(
-        appBar: customHeader(),
+        appBar: customHeader(title: category.name),
         backgroundColor: Colors.white,
         body: CustomScrollView(
           slivers: [
@@ -29,7 +30,7 @@ class ProductScreen extends StatelessWidget {
               pinned: true,
               toolbarHeight: 80.h,
               backgroundColor: ColorManager.white,
-              title: customSearch(),
+              title: customSearch(context),
 
               automaticallyImplyLeading: false,
             ),
@@ -56,7 +57,7 @@ class ProductScreen extends StatelessWidget {
                         hasScrollBody: false,
                         child: Center(
                           child: Text(
-                            'لا توجد منتجات متاحة لهذه الفئة',
+                            'No products are available for this category',
                             style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                         ),

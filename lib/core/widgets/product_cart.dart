@@ -4,6 +4,7 @@ import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
+import 'package:ecommerce/core/widgets/animation_to_add_cart.dart';
 import 'package:ecommerce/features/product/domain/entities/product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -144,7 +145,7 @@ class ProductCard extends StatelessWidget {
                     SizedBox(width: Sizes.s14.w),
                     Icon(Icons.star, color: ColorManager.starRate),
                     Spacer(),
-                    Icon(Icons.add_circle, color: ColorManager.primary),
+                    AnimatedAddToCartButton(productId: _product.id),
                   ],
                 ),
               ],

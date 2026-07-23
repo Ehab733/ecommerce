@@ -23,6 +23,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await _remoteDataSource.login(request);
       await _localDataSource.setToken(response.token);
+      Logger().d(response.token);
+      Logger().d(response.user.toEntity);
       return Right(response.user.toEntity);
     } on AppException catch (error) {
       Logger().d(error.message);
@@ -35,6 +37,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final response = await _remoteDataSource.register(request);
       await _localDataSource.setToken(response.token);
+      Logger().d(response.token);
+      Logger().d(response.user.toEntity);
       return Right(response.user.toEntity);
     } on AppException catch (error) {
       Logger().d(error.message);

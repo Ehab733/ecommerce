@@ -32,7 +32,7 @@ class UiUtils {
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 2,
-      backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
+      backgroundColor: isError ? ColorManager.error : ColorManager.primary,
       textColor: Colors.white,
       fontSize: 16.0,
     );
