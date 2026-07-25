@@ -1,4 +1,5 @@
 import 'package:ecommerce/core/app_bloc_observer.dart';
+import 'package:ecommerce/core/contants/constants.dart';
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/routes/route_generator.dart';
 import 'package:ecommerce/core/routes/routes.dart';
@@ -7,6 +8,7 @@ import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +34,17 @@ class EcommerceApp extends StatelessWidget {
         builder: (_, child) => MaterialApp(
           debugShowCheckedModeBanner: false,
           onGenerateRoute: RouteGenerator.getRoute,
-          initialRoute: Routes.home,
+          initialRoute: isHaveToken == false ? Routes.login : Routes.home,
         ),
       ),
     );
   }
+}
+
+Future<bool> isHaveToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  if (prefs.getString(CasheConstants.tokenKey) != null) {
+    return true;
+  }
+  return false;
 }

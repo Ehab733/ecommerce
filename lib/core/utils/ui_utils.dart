@@ -1,7 +1,8 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UiUtils {
   static void showLoading(BuildContext context) => showDialog(
@@ -25,16 +26,27 @@ class UiUtils {
 
   static void hideLoading(BuildContext context) => Navigator.pop(context);
 
-  static void showMessage(String message, {bool isError = true}) {
+  static void showMessage(
+    BuildContext context,
+    String message, {
+    bool isError = true,
+  }) {
     FocusManager.instance.primaryFocus?.unfocus();
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 2,
-      backgroundColor: isError ? ColorManager.error : ColorManager.primary,
-      textColor: Colors.white,
-      fontSize: 16.0,
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: getRegularStyle(color: ColorManager.white),
+        ),
+        backgroundColor: isError ? ColorManager.error : ColorManager.primary,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(16.r),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 }

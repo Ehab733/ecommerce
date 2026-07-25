@@ -7,6 +7,7 @@ PreferredSizeWidget customHeader({
   List<Widget>? actions,
   String title = 'PixelForge',
 }) => AppBar(
+  scrolledUnderElevation: 0.0,
   backgroundColor: ColorManager.white,
   foregroundColor: ColorManager.appBarTitle,
   title: Text(

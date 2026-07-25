@@ -106,7 +106,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.pushReplacementNamed(context, Routes.home);
                       } else if (state is RegisterError) {
                         UiUtils.hideLoading(context);
-                        UiUtils.showMessage(state.messageError, isError: true);
+                        UiUtils.showMessage(
+                          context,
+                          state.messageError,
+                          isError: true,
+                        );
                       }
                     },
                     child: ElevatedButtonEdit(

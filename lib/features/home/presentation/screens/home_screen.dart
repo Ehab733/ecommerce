@@ -3,6 +3,7 @@ import 'package:ecommerce/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:ecommerce/core/widgets/custom_search.dart';
 import 'package:ecommerce/features/home/presentation/screens/home_screen_content.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
+import 'package:ecommerce/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeScreenContent(),
     const HomeScreenContent(),
     const HomeScreenContent(),
-    const HomeScreenContent(),
+    const ProfileScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -30,12 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            pinned: true,
-            toolbarHeight: 80.h,
-            backgroundColor: ColorManager.white,
-            title: customSearch(context),
-          ),
+          if (currentIndex != 3)
+            SliverAppBar(
+              pinned: true,
+              scrolledUnderElevation: 0.0,
+              surfaceTintColor: Colors.transparent,
+              toolbarHeight: 80.h,
+              backgroundColor: ColorManager.white,
+              title: customSearch(context),
+            ),
 
           screens[currentIndex],
         ],
@@ -43,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: CustomBottomNavBar(
         onTap: (index) {
           currentIndex = index;
+          setState(() {});
         },
         currentIndex: currentIndex,
       ),

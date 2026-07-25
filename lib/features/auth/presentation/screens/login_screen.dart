@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacementNamed(context, Routes.home);
                       } else if (state is LoginError) {
                         UiUtils.hideLoading(context);
-                        UiUtils.showMessage(state.messageError, isError: true);
+                        UiUtils.showMessage(context,state.messageError, isError: true);
                       }
                     },
                     child: ElevatedButtonEdit(

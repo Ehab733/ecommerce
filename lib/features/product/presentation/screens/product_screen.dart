@@ -28,6 +28,8 @@ class ProductScreen extends StatelessWidget {
           slivers: [
             SliverAppBar(
               pinned: true,
+              scrolledUnderElevation: 0.0,
+              surfaceTintColor: Colors.transparent,
               toolbarHeight: 80.h,
               backgroundColor: ColorManager.white,
               title: customSearch(context),
@@ -35,7 +37,11 @@ class ProductScreen extends StatelessWidget {
               automaticallyImplyLeading: false,
             ),
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0).r,
+              padding: EdgeInsets.only(
+                left: 16.0.w,
+                right: 16.0.w,
+                bottom: MediaQuery.paddingOf(context).bottom + 16.h,
+              ),
               sliver: BlocBuilder<ProductCubit, GetProductState>(
                 builder: (_, state) {
                   if (state is GetProductLoading) {
