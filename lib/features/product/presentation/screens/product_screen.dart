@@ -1,0 +1,98 @@
+import 'package:ecommerce/core/di/get_it.dart';
+import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/widgets/custom_search.dart';
+import 'package:ecommerce/core/widgets/error_indicator.dart';
+import 'package:ecommerce/core/widgets/loading_indicator.dart';
+import 'package:ecommerce/core/widgets/product_cart.dart';
+import 'package:ecommerce/core/widgets/custom_header.dart';
+import 'package:ecommerce/features/home/domain/entities/category.dart';
+import 'package:ecommerce/features/product/presentation/manager/product_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logger/web.dart';
+
+class ProductScreen extends StatelessWidget {
+  const ProductScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final category = ModalRoute.of(context)!.settings.arguments as Category;
+    Logger().d('Category ID :   ${category.id}');
+    return BlocProvider(
+      create: (context) => getIt.get<ProductCubit>()..getProducts(category.id),
+      child: Scaffold(
+        appBar: customHeader(title: category.name),
+        backgroundColor: Colors.white,
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              scrolledUnderElevation: 0.0,
+              surfaceTintColor: Colors.transparent,
+              toolbarHeight: 80.h,
+              backgroundColor: ColorManager.white,
+              title: customSearch(context),
+
+              automaticallyImplyLeading: false,
+            ),
+            SliverPadding(
+              padding: EdgeInsets.only(
+                left: 16.0.w,
+                right: 16.0.w,
+                bottom: MediaQuery.paddingOf(context).bottom + 16.h,
+              ),
+              sliver: BlocBuilder<ProductCubit, GetProductState>(
+                builder: (_, state) {
+                  if (state is GetProductLoading) {
+                    return const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: LoadingIndicator()),
+                    );
+                  } else if (state is GetProductError) {
+                    return SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: ErrorIndicator(errorMessage: state.message),
+                    );
+                  } else if (state is GetProductSuccess) {
+                    Logger().d("Products count: ${state.products.length}");
+
+                    // 2️⃣ التعامل مع حالة عدم وجود منتجات
+                    if (state.products.isEmpty) {
+                      return const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Text(
+                            'No products are available for this category',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
+                    return SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // عمودين
+                        childAspectRatio:
+                            0.72, // الحفاظ على الأبعاد الصحيحة لمنع الـ Overflow
+                        mainAxisSpacing: 16.r,
+                        crossAxisSpacing: 16.r,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return ProductCard(product: state.products[index]);
+                        },
+                        childCount: state.products.length, // عدد المنتجات
+                      ),
+                    );
+                  } else {
+                    return const SliverToBoxAdapter(child: SizedBox.shrink());
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
