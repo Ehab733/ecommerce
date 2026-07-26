@@ -1,0 +1,10 @@
+flutter_native_splash:
+  color: "#003875" # 🎨 اللون الأزرق الرئيسي من تصميمك
+  image: assets/images/splash.png # 👈 مسار صورة اللوجو (PixelForge)
+  
+  # إعدادات أندرويد 12 فما فوق (Android 12 Splash API)
+  android_12:
+    image: assets/images/splash.png
+    color: "#003875"
+    
+  fullscreen: true

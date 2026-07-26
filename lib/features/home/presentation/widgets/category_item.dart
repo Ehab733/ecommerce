@@ -45,6 +45,7 @@ class CategoryItem extends StatelessWidget {
                 color: ColorManager.primary,
                 fontsize: FontSize.s14,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

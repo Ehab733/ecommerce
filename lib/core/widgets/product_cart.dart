@@ -6,15 +6,27 @@ import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/core/widgets/animation_to_add_cart.dart';
 import 'package:ecommerce/features/product/domain/entities/product.dart';
+import 'package:ecommerce/features/wishlist/domain/entities/wishlist_item.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final Product _product;
+
   const ProductCard({super.key, required this._product});
 
   @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  bool isFavourite = false;
+
+  @override
   Widget build(BuildContext context) {
+    final wishlistCubit = context.read<WishListCubit>();
     return Container(
       width: 180.w,
       decoration: BoxDecoration(
@@ -34,14 +46,14 @@ class ProductCard extends StatelessWidget {
                 onTap: () => Navigator.pushNamed(
                   context,
                   Routes.productsDetails,
-                  arguments: _product,
+                  arguments: widget._product,
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.vertical(
                     top: Radius.circular(Sizes.s14.r),
                   ),
                   child: CachedNetworkImage(
-                    imageUrl: _product.imageCover,
+                    imageUrl: widget._product.imageCover,
                     height: 140.h,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -72,10 +84,33 @@ class ProductCard extends StatelessWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(
-                      Icons.favorite_border,
-                      color: ColorManager.primary,
-                      size: Sizes.s24.sp,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (!wishlistCubit.items.contains(
+                          WishlistItem(
+                            images: widget._product.images,
+                            id: widget._product.id,
+                            title: widget._product.title,
+                            price: widget._product.price,
+                            imageCover: widget._product.imageCover,
+                          ),
+                        )) {
+                          isFavourite = true;
+                          wishlistCubit.addProductToWishList(
+                            widget._product.id,
+                          );
+                        } else {
+                          isFavourite = false;
+                        }
+                        setState(() {});
+                      },
+                      child: Icon(
+                        isFavourite
+                            ? Icons.favorite_outlined
+                            : Icons.favorite_border,
+                        color: ColorManager.primary,
+                        size: Sizes.s24.sp,
+                      ),
                     ),
                   ),
                 ),
@@ -89,13 +124,13 @@ class ProductCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _product.title,
+                  widget._product.title,
                   style: getSemiBoldStyle(color: ColorManager.primary),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
                 Text(
-                  _product.description,
+                  widget._product.description,
                   style: getSemiBoldStyle(color: ColorManager.primary),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -104,9 +139,9 @@ class ProductCard extends StatelessWidget {
                 Row(
                   children: [
                     Visibility(
-                      visible: _product.priceAfterDiscount != null,
+                      visible: widget._product.priceAfterDiscount != null,
                       child: Text(
-                        "EGP ${_product.priceAfterDiscount.toString()}",
+                        "EGP ${widget._product.priceAfterDiscount.toString()}",
                         style: getRegularStyle(
                           color: ColorManager.primary,
                           fontsize: FontSize.s14,
@@ -115,8 +150,8 @@ class ProductCard extends StatelessWidget {
                     ),
                     SizedBox(width: 6.w),
                     Text(
-                      "EGP ${_product.price.toString()}",
-                      style: _product.priceAfterDiscount == null
+                      "EGP ${widget._product.price.toString()}",
+                      style: widget._product.priceAfterDiscount == null
                           ? getRegularStyle(
                               color: ColorManager.primary,
                               fontsize: FontSize.s14,
@@ -136,7 +171,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "(${_product.ratingsAverage})",
+                      "(${widget._product.ratingsAverage})",
                       style: getRegularStyle(
                         color: ColorManager.primary,
                         fontsize: FontSize.s14,
@@ -145,7 +180,7 @@ class ProductCard extends StatelessWidget {
                     SizedBox(width: Sizes.s14.w),
                     Icon(Icons.star, color: ColorManager.starRate),
                     Spacer(),
-                    AnimatedAddToCartButton(productId: _product.id),
+                    AnimatedAddToCartButton(productId: widget._product.id),
                   ],
                 ),
               ],

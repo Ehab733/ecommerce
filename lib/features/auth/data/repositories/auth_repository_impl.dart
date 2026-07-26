@@ -45,4 +45,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(Failure(error.message));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> logout() async{
+    try {
+      
+      await _localDataSource.deleteToken();
+     
+      return const Right(null);
+    } on AppException catch (error) {
+      Logger().d(error.message);
+      return Left(Failure(error.message));
+    }
+  }
 }

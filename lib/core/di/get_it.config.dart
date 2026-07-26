@@ -25,6 +25,8 @@ import 'package:ecommerce/features/auth/domain/repositories/auth_repository.dart
     as _i33;
 import 'package:ecommerce/features/auth/domain/useCases/login_usecase.dart'
     as _i186;
+import 'package:ecommerce/features/auth/domain/useCases/logout_usecase.dart'
+    as _i52;
 import 'package:ecommerce/features/auth/domain/useCases/register_usecase.dart'
     as _i471;
 import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart'
@@ -71,6 +73,22 @@ import 'package:ecommerce/features/product/domain/usecases/product_usecase.dart'
     as _i171;
 import 'package:ecommerce/features/product/presentation/manager/product_cubit.dart'
     as _i538;
+import 'package:ecommerce/features/wishlist/data/data_source/wishlist_api_remote_data_source.dart'
+    as _i985;
+import 'package:ecommerce/features/wishlist/data/data_source/wishlist_remote_data_source.dart'
+    as _i497;
+import 'package:ecommerce/features/wishlist/data/repositories/wishlist_repository_impl.dart'
+    as _i133;
+import 'package:ecommerce/features/wishlist/domain/repositories/wishlist_repository.dart'
+    as _i1016;
+import 'package:ecommerce/features/wishlist/domain/usecases/add_product_to_wish_list_use_case.dart'
+    as _i612;
+import 'package:ecommerce/features/wishlist/domain/usecases/delete_product_from_wishlist_usecase.dart'
+    as _i24;
+import 'package:ecommerce/features/wishlist/domain/usecases/get_user_wishlist_usecase.dart'
+    as _i251;
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart'
+    as _i759;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
@@ -88,6 +106,9 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.singleton<_i361.Dio>(() => registerModule.dio);
+    gh.lazySingleton<_i497.WishlistRemoteDataSource>(
+      () => _i985.WishlistApiRemoteDataSource(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i488.HomeRemoteDataSource>(
       () => _i455.HomeApiRemoteDataSource(gh<_i361.Dio>()),
     );
@@ -111,6 +132,27 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i713.CategoryUsecase>(
       () => _i713.CategoryUsecase(gh<_i572.HomeRepository>()),
+    );
+    gh.lazySingleton<_i1016.WishlistRepository>(
+      () => _i133.WishlistRepositoryImpl(gh<_i497.WishlistRemoteDataSource>()),
+    );
+    gh.lazySingleton<_i612.AddProductToWishListUseCase>(
+      () => _i612.AddProductToWishListUseCase(gh<_i1016.WishlistRepository>()),
+    );
+    gh.lazySingleton<_i24.DeleteProductFromWishlistUsecase>(
+      () => _i24.DeleteProductFromWishlistUsecase(
+        gh<_i1016.WishlistRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i251.GetUserWishlistUsecase>(
+      () => _i251.GetUserWishlistUsecase(gh<_i1016.WishlistRepository>()),
+    );
+    gh.singleton<_i759.WishListCubit>(
+      () => _i759.WishListCubit(
+        gh<_i251.GetUserWishlistUsecase>(),
+        gh<_i612.AddProductToWishListUseCase>(),
+        gh<_i24.DeleteProductFromWishlistUsecase>(),
+      ),
     );
     gh.lazySingleton<_i601.ProductRepository>(
       () => _i276.ProductRepositoryImpl(gh<_i88.ProductRemoteDataSource>()),
@@ -150,17 +192,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i186.LoginUsecase>(
       () => _i186.LoginUsecase(gh<_i33.AuthRepository>()),
     );
+    gh.singleton<_i52.LogoutUsecase>(
+      () => _i52.LogoutUsecase(gh<_i33.AuthRepository>()),
+    );
     gh.singleton<_i471.RegisterUsecase>(
       () => _i471.RegisterUsecase(gh<_i33.AuthRepository>()),
+    );
+    gh.factory<_i538.ProductCubit>(
+      () => _i538.ProductCubit(gh<_i171.ProductUsecase>()),
     );
     gh.singleton<_i1057.AuthCubit>(
       () => _i1057.AuthCubit(
         loginUsecase: gh<_i186.LoginUsecase>(),
         registerUsecase: gh<_i471.RegisterUsecase>(),
+        logoutUsecase: gh<_i52.LogoutUsecase>(),
       ),
-    );
-    gh.factory<_i538.ProductCubit>(
-      () => _i538.ProductCubit(gh<_i171.ProductUsecase>()),
     );
     return this;
   }

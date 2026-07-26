@@ -77,4 +77,5 @@ class AuthApiRemoteDataSource implements AuthRemoteDataSource {
       throw RemoteException('An error occurred while converting the data: $error');
     }
   }
+  
 }

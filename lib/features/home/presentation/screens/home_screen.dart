@@ -1,9 +1,11 @@
+import 'package:ecommerce/catergories_screen.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:ecommerce/core/widgets/custom_search.dart';
 import 'package:ecommerce/features/home/presentation/screens/home_screen_content.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
 import 'package:ecommerce/features/profile/presentation/screens/profile_screen.dart';
+import 'package:ecommerce/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -20,8 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
   // 2. قائمة الصفحات الأساسية في التطبيق
   final List<Widget> screens = [
     const HomeScreenContent(),
-    const HomeScreenContent(),
-    const HomeScreenContent(),
+    const CategoriesTab(),
+    const WishlistTab(),
     const ProfileScreen(),
   ];
   @override

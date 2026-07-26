@@ -53,7 +53,9 @@ class _CartScreenState extends State<CartScreen> {
                     child: ErrorIndicator(errorMessage: state.message),
                   );
                 } else {
-                  Logger().d("Products count: ${_cartCubit.cart.items.length}");
+                  Logger().d(
+                    "Products count In Cart Screen: ${_cartCubit.cart.items.length}",
+                  );
 
                   // 2️⃣ التعامل مع حالة عدم وجود منتجات
                   if (_cartCubit.cart.items.isEmpty) {
@@ -87,7 +89,6 @@ class _CartScreenState extends State<CartScreen> {
                           },
                           onDelete: () {
                             _cartCubit.deleteFromCart(item.product.id);
-                            // _cartCubit.getCart();
                           },
                         ),
                       );

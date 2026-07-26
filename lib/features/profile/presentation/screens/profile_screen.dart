@@ -1,7 +1,13 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/routes/routes.dart';
+import 'package:ecommerce/core/utils/ui_utils.dart';
+import 'package:ecommerce/core/widgets/elevated_button_edit.dart';
 import 'package:ecommerce/core/widgets/text_form_field_edit.dart';
+import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart';
+import 'package:ecommerce/features/auth/presentation/manager/auth_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -21,13 +27,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Mohamed Mohamed Nabil');
-    _emailController = TextEditingController(text: 'mohamed.N@gmail.com');
-    _passwordController = TextEditingController(text: '****************');
-    _phoneController = TextEditingController(text: '01122118855');
-    _addressController = TextEditingController(
-      text: '6th October, street 11.....',
-    );
+    _nameController = TextEditingController(text: 'Ehab Ahmed');
+    _emailController = TextEditingController(text: 'ehab@gmail.com');
+    _passwordController = TextEditingController(text: 'Ehab123@');
+    _phoneController = TextEditingController(text: '01212357118');
+    _addressController = TextEditingController(text: 'Beba , bani suef , ...');
   }
 
   @override
@@ -51,12 +55,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             // 1️⃣ قسم الترحيب والإيميل
             Text(
-              'Welcome, Mohamed',
+              'Welcome, Ehab',
               style: getBoldStyle(color: ColorManager.primary, fontsize: 18.sp),
             ),
             SizedBox(height: 4.h),
             Text(
-              'mohamed.N@gmail.com',
+              'ehab@gmail.com',
               style: getRegularStyle(
                 color: ColorManager.primary.withAlpha(150),
                 fontsize: 14.sp,
@@ -95,6 +99,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _addressController,
             ),
             SizedBox(height: 24.h),
+            BlocListener<AuthCubit, AuthState>(
+              listener: (context, state) {
+                if (state is LogoutLoading) {
+                  UiUtils.showLoading(context);
+                } else if (state is LogoutError) {
+                  UiUtils.hideLoading(context);
+                  UiUtils.showMessage(context, state.messageError);
+                } else if (state is LogoutSuccess) {
+                  // 🎯 التعديل هنا: LogoutSuccess بدلاً من LoginSuccess
+                  UiUtils.hideLoading(context);
+
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    Routes.login,
+                    (route) => false, // يمسح كل الـ Stack السابقة
+                  );
+                }
+              },
+              child: ElevatedButtonEdit(
+                title: 'Logout',
+                onPressed: () {
+                  final authCubit = context.read<AuthCubit>();
+                  authCubit.logout();
+                },
+                backgroundColor: ColorManager.primary,
+                textColor: ColorManager.white,
+              ),
+            ),
           ],
         ),
       ),

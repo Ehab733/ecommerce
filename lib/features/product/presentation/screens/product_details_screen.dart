@@ -14,6 +14,7 @@ import 'package:ecommerce/features/product/presentation/widgets/product_header_i
 import 'package:ecommerce/features/product/presentation/widgets/product_image_slider.dart';
 import 'package:ecommerce/features/product/presentation/widgets/product_rating_and_quantity.dart';
 import 'package:ecommerce/features/product/presentation/widgets/product_size_selector.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -80,8 +81,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     images: product.images,
                     isFavorite: _isFavorite,
                     onFavoriteTap: () {
-                      _isFavorite = !_isFavorite;
-                      setState(() {});
+                      final wishlistCubit = context.read<WishListCubit>();
+
+                      if (product.id != null) {
+                        wishlistCubit.addProductToWishList(product.id!);
+
+                        // 🎯 التعديل هنا: عكس القيمة وإسنادها مجدداً
+                        _isFavorite = !_isFavorite;
+
+                        setState(() {});
+                      }
                     },
                   ),
                   SizedBox(height: Sizes.s8.h),

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class FontConstants {
-  static const String fontFamily = 'Poppins';
-}
-
 class FontWeightManager {
   static const FontWeight light = FontWeight.w300;
   static const FontWeight regular = FontWeight.w400;
