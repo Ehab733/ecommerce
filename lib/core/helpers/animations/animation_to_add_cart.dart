@@ -1,5 +1,6 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
+import 'package:ecommerce/features/cart/presentation/manager/cart_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,13 +12,13 @@ class AnimatedAddToCartButton extends StatefulWidget {
 
   @override
   State<AnimatedAddToCartButton> createState() =>
-      _ProductCardAddToCartButtonState();
+      _AnimatedAddToCartButtonState();
 }
 
-class _ProductCardAddToCartButtonState extends State<AnimatedAddToCartButton>
+class _AnimatedAddToCartButtonState extends State<AnimatedAddToCartButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
   bool _isLoading = false;
   bool _isSuccess = false;
 
@@ -40,7 +41,8 @@ class _ProductCardAddToCartButtonState extends State<AnimatedAddToCartButton>
     super.dispose();
   }
 
-  void _triggerSuccessAnimation() async {
+  Future<void> _triggerSuccessAnimation() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _isSuccess = true;
@@ -50,6 +52,8 @@ class _ProductCardAddToCartButtonState extends State<AnimatedAddToCartButton>
     await _controller.reverse();
 
     await Future.delayed(const Duration(milliseconds: 1200));
+
+    // 🛡️ التأكد من أن الـ Widget ما زال معروضاً قبل استدعاء setState
     if (mounted) {
       setState(() {
         _isSuccess = false;
@@ -60,32 +64,28 @@ class _ProductCardAddToCartButtonState extends State<AnimatedAddToCartButton>
   @override
   Widget build(BuildContext context) {
     return BlocListener<CartCubit, CartState>(
-      // 🎯 أهم نقطة (Senior Filter): الفلترة يدوياً بـ listenWhen
       listenWhen: (previous, current) {
-        if (current is AddToCartLoading &&
-            current.productId == widget.productId) {
-          return true;
-        }
-        if (current is AddToCartSuccess &&
-            current.productId == widget.productId) {
-          return true;
-        }
-        if (current is AddToCartError &&
-            current.productId == widget.productId) {
-          return true;
-        }
-        return false;
+        return current.maybeWhen(
+          addToCartLoading: (productId) => productId == widget.productId,
+          addToCartSuccess: (productId) => productId == widget.productId,
+          addToCartError: (errorMessage, productId) =>
+              productId == widget.productId,
+          orElse: () => false,
+        );
       },
       listener: (context, state) {
-        if (state is AddToCartLoading) {
-          setState(() => _isLoading = true);
-        } else if (state is AddToCartError) {
-          setState(() => _isLoading = false);
-        } else if (state is AddToCartSuccess) {
-          _triggerSuccessAnimation();
-        }
+        state.whenOrNull(
+          addToCartLoading: (_) {
+            if (mounted) setState(() => _isLoading = true);
+          },
+          addToCartError: (_, _) {
+            if (mounted) setState(() => _isLoading = false);
+          },
+          addToCartSuccess: (_) => _triggerSuccessAnimation(),
+        );
       },
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque, // لضمان الاستجابة السريعة للمس
         onTap: () {
           if (!_isLoading && !_isSuccess) {
             context.read<CartCubit>().addToCart(widget.productId);
@@ -109,7 +109,7 @@ class _ProductCardAddToCartButtonState extends State<AnimatedAddToCartButton>
                   )
                 : _isSuccess
                 ? Icon(
-                    Icons.check_circle,
+                    Icons.check_circle_rounded,
                     key: ValueKey('success_${widget.productId}'),
                     color: Colors.green,
                     size: 24.sp,

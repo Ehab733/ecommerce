@@ -3,6 +3,7 @@ import 'package:ecommerce/core/error/exceptions.dart';
 import 'package:ecommerce/core/error/failure.dart';
 import 'package:ecommerce/features/wishlist/data/data_source/wishlist_remote_data_source.dart';
 import 'package:ecommerce/features/wishlist/data/mappers/wishlist_item_mapper.dart';
+import 'package:ecommerce/features/wishlist/data/models/wishlist_item_model.dart';
 import 'package:ecommerce/features/wishlist/domain/entities/wishlist_item.dart';
 import 'package:ecommerce/features/wishlist/domain/repositories/wishlist_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -20,10 +21,19 @@ class WishlistRepositoryImpl implements WishlistRepository {
   ) async {
     try {
       final response = await _remoteDataSource.addProductToWishList(productId);
-      return Right(response.items ?? []);
+
+      // ✅ التحويل الصريح والأمن لـ List<String>
+      final List<String> wishlistIds = response.data != null
+          ? List<String>.from(response.data as List)
+          : [];
+
+      return Right(wishlistIds);
     } on RemoteException catch (error) {
       Logger().d(error.message);
-      return Left(Failure(error.message));
+      return Left(ErrorHandler.handle(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
@@ -31,12 +41,27 @@ class WishlistRepositoryImpl implements WishlistRepository {
   Future<Either<Failure, List<WishlistItem>>> getWishList() async {
     try {
       final response = await _remoteDataSource.getWishList();
-      return Right(
-        response.wishlistItem?.map((e) => e.toEntity).toList() ?? [],
-      );
+      Logger().i(response.data);
+
+      final rawList = response.data;
+
+      final items =
+          rawList
+              ?.map(
+                (e) => WishlistItemModel.fromJson(
+                  e as Map<String, dynamic>,
+                ).toEntity,
+              )
+              .toList() ??
+          [];
+
+      return Right(items);
     } on RemoteException catch (error) {
       Logger().d(error.message);
-      return Left(Failure(error.message));
+      return Left(ErrorHandler.handle(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
@@ -48,10 +73,19 @@ class WishlistRepositoryImpl implements WishlistRepository {
       final response = await _remoteDataSource.removeProductToWishList(
         productId,
       );
-      return Right(response.items ?? []);
+
+      // ✅ تحويل أمن للـ List<String> عند الحذف
+      final List<String> wishlistIds = response.data != null
+          ? List<String>.from(response.data as List)
+          : [];
+
+      return Right(wishlistIds);
     } on RemoteException catch (error) {
       Logger().d(error.message);
-      return Left(Failure(error.message));
+      return Left(ErrorHandler.handle(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 }

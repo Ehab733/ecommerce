@@ -1,19 +1,16 @@
-part of 'home_cubit.dart';
+import 'package:ecommerce/features/home/domain/entities/category.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-sealed class HomeCubitState {}
+part 'home_cubit_state.freezed.dart';
 
-final class HomeCubitInitial extends HomeCubitState {}
+@freezed
+class HomeCubitState with _$HomeCubitState {
+  const factory HomeCubitState.homeCubitInitial() = _initial;
 
-final class GetCategoriesLoading extends HomeCubitState {}
-
-final class GetCategoriesFailure extends HomeCubitState {
-  final String message;
-
-  GetCategoriesFailure(this.message);
-}
-
-final class GetCategoriesSuccess extends HomeCubitState {
-  final List<Category> categories;
-
-  GetCategoriesSuccess(this.categories);
+  const factory HomeCubitState.getCategoriesLoading() = _getCategoriesLoading;
+  const factory HomeCubitState.getCategoriesFailure({required String message}) =
+      _getCategoriesFailure;
+  const factory HomeCubitState.getCategoriesSuccess({
+    required List<Category> categories,
+  }) = _getCategoriesSuccess;
 }

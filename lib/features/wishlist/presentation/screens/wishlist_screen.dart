@@ -1,8 +1,14 @@
+import 'package:ecommerce/core/network/network_cubit.dart';
+import 'package:ecommerce/core/network/network_state.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
+import 'package:ecommerce/core/utils/ui_utils.dart';
 import 'package:ecommerce/core/widgets/error_indicator.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_state.dart';
 import 'package:ecommerce/features/wishlist/presentation/widgets/wishlist_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,57 +23,128 @@ class WishlistTab extends StatefulWidget {
 
 class _WishlistTabState extends State<WishlistTab> {
   late final _wishlistCubit = context.read<WishListCubit>();
+
   @override
   void initState() {
-    _wishlistCubit.getWishList();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_wishlistCubit.items.isEmpty) {
+        _wishlistCubit.getWishList();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // 🎯 مرجع SliverPadding ليعمل بسلاسة كاملة داخل slivers: [...] بـ HomeScreen
-    return BlocBuilder<WishListCubit, WishListState>(
-      builder: (context, state) {
-        if (state is GetWishListLoading) {
-          return const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(child: LoadingIndicator()),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<NetworkCubit, NetworkState>(
+          listener: (context, state) {
+            state.whenOrNull(
+              connected: () {
+                if (_wishlistCubit.items.isEmpty) {
+                  _wishlistCubit.getWishList();
+                }
+              },
+              disConnected: () =>
+                  UiUtils.showMessage(context, 'No Internet Connection'),
+            );
+          },
+        ),
+
+        BlocListener<WishListCubit, WishListState>(
+          listener: (context, state) {
+            state.whenOrNull(
+              deleteProductFromWishListError: (message) {
+                UiUtils.showMessage(context, message, isError: true);
+              },
+              deleteProductFromWishListSuccess: () {
+                UiUtils.showMessage(context, 'Item removed successfully');
+              },
+            );
+          },
+        ),
+      ],
+      child: BlocBuilder<WishListCubit, WishListState>(
+        buildWhen: (previous, current) {
+          return current.maybeWhen(
+            getWishListLoading: () => true,
+            getWishListError: (_) => true,
+            getWishListSuccess: () => true,
+            deleteProductFromWishListSuccess: () => true,
+            addProductToWishListSuccess: () => true,
+            orElse: () => false,
           );
-        } else if (state is GetWishListError) {
-          return SliverFillRemaining(
-            hasScrollBody: false,
-            child: ErrorIndicator(errorMessage: state.message),
-          );
-        } else {
-          if (_wishlistCubit.items.isEmpty) {
-            return SliverFillRemaining(
+        },
+        builder: (context, state) {
+          return state.maybeWhen(
+            getWishListLoading: () => const SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(
-                child: Text(
-                  'No products are available for this wishlist',
-                  style: getLightStyle(color: ColorManager.grey),
+              child: Center(child: LoadingIndicator()),
+            ),
+
+            getWishListError: (message) => SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ErrorIndicator(errorMessage: message),
+              ),
+            ),
+
+            orElse: () {
+              if (_wishlistCubit.items.isEmpty) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.favorite_border_rounded,
+                          size: Sizes.s60.sp,
+                          color: ColorManager.lightGrey,
+                        ),
+                        SizedBox(height: Sizes.s12.h),
+                        Text(
+                          'Your wishlist is empty',
+                          style: getBoldStyle(
+                            color: ColorManager.text,
+                            fontsize: FontSize.s18,
+                          ),
+                        ),
+                        SizedBox(height: Sizes.s4.h),
+                        Text(
+                          'Looks like you haven\'t added anything yet',
+                          style: getRegularStyle(
+                            color: ColorManager.grey,
+                            fontsize: FontSize.s14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final item = _wishlistCubit.items[index];
+                    return WishlistCard(
+                      key: ValueKey(item.id),
+                      item: item,
+                      onTap: () {
+                        _wishlistCubit.deleteProductFromWishList(item.id);
+                      },
+                    );
+                  }, childCount: _wishlistCubit.items.length),
                 ),
-              ),
-            );
-          } else {
-            return SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final item = _wishlistCubit.items[index];
-                  return WishlistCard(
-                    item: item,
-                    onTap: () async {
-                      _wishlistCubit.deleteProductFromWishList(item.id);
-                      _wishlistCubit.getWishList();
-                    },
-                  );
-                }, childCount: _wishlistCubit.items.length),
-              ),
-            );
-          }
-        }
-      },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

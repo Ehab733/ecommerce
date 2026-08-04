@@ -1,37 +1,30 @@
-part of 'wish_list_cubit.dart';
 
-sealed class WishListState {}
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-final class WishListInitial extends WishListState {}
+part 'wish_list_state.freezed.dart';
 
-// Add Product to wishlist states
-final class AddProductToWishListLoading extends WishListState {}
+@freezed
+class WishListState with _$WishListState{
+  const factory WishListState.initial() = _initial;
 
-final class AddProductToWishListError extends WishListState {
-  final String message;
-  AddProductToWishListError(this.message);
+  // Add Product to wishlist states
+
+  const factory WishListState.addProductToWishListLoading() = _addProductToWishListLoading;
+  const factory WishListState.addProductToWishListError({required String message}) = _addProductToWishListError;
+  const factory WishListState.addProductToWishListSuccess() = _addProductToWishListSuccess;
+
+  // Get wishlist products
+
+  const factory WishListState.getWishListLoading() = _getWishListLoading;
+  const factory WishListState.getWishListError({required String message}) = _getWishListError;
+  const factory WishListState.getWishListSuccess() = _getWishListSuccess;
+
+  // delete wishlist product
+
+  const factory WishListState.deleteProductFromWishListLoading() = _deleteProductFromWishListLoading;
+  const factory WishListState.deleteProductFromWishListError({required String message}) = _deleteProductFromWishListError;
+  const factory WishListState.deleteProductFromWishListSuccess() = _deleteProductFromWishListSuccess;
+
+
 }
 
-final class AddProductToWishListSuccess extends WishListState {}
-
-
-// Get wishlist products
-final class GetWishListLoading extends WishListState {}
-
-final class GetWishListError extends WishListState {
-  final String message;
-  GetWishListError(this.message);
-}
-
-final class GetWishListSuccess extends WishListState {}
-
-
-// delete wishlist product
-final class DeleteProductFromWishListLoading extends WishListState {}
-
-final class DeleteProductFromWishListError extends WishListState {
-  final String message;
-  DeleteProductFromWishListError(this.message);
-}
-
-final class DeleteProductFromWishListSuccess extends WishListState {}

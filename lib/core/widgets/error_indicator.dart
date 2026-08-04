@@ -1,6 +1,9 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ErrorIndicator extends StatelessWidget {
   final String errorMessage;
@@ -9,9 +12,43 @@ class ErrorIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        errorMessage,
-        style: getMediumStyle(color: ColorManager.error),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: Insets.s20.w,
+          vertical: Insets.s16.h,
+        ),
+        margin: EdgeInsets.all(Insets.s16.r),
+        decoration: BoxDecoration(
+          color: ColorManager.error.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(Insets.s16.r),
+          border: Border.all(
+            color: ColorManager.error.withValues(alpha: 0.2),
+            width: 1.1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // أيقونة تنبيه جذابة
+            Icon(
+              Icons.error_outline_rounded,
+              color: ColorManager.error,
+              size: 36.sp,
+            ),
+            SizedBox(height: Sizes.s8.h),
+
+            // نص الخطأ
+            Text(
+              errorMessage,
+              textAlign: TextAlign.center,
+              style: getMediumStyle(
+                color: ColorManager.error,
+                fontsize: FontSize.s14.sp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

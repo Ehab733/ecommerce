@@ -1,23 +1,18 @@
-class WishlistItemModel {
-  List<String> images;
-  String id;
-  String title;
-  int price;
-  String imageCover;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  WishlistItemModel({
-    required this.images,
-    required this.id,
-    required this.title,
-    required this.price,
-    required this.imageCover,
-  });
+part 'wishlist_item_model.freezed.dart';
+part 'wishlist_item_model.g.dart';
 
-  factory WishlistItemModel.fromJson(Map<String, dynamic> json) => WishlistItemModel(
-    images: List<String>.from(json["images"]),
-    id: json["_id"],
-    title: json["title"],
-    price: json["price"],
-    imageCover: json["imageCover"],
-  );
+@freezed
+abstract class WishlistItemModel with _$WishlistItemModel {
+  const factory WishlistItemModel({
+    required List<String> images,
+    required String? id,
+    required String? title,
+    required int price,
+    required String? imageCover,
+  }) = _WishlistItemModel;
+
+  factory WishlistItemModel.fromJson(Map<String, dynamic> json) =>
+      _$WishlistItemModelFromJson(json);
 }

@@ -50,7 +50,7 @@ class ProductColorSelector extends StatelessWidget {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: colors[index].withOpacity(0.4),
+                                color: colors[index].withValues(alpha: 0.4),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),

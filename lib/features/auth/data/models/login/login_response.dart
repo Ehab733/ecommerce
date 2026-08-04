@@ -1,19 +1,17 @@
 import 'package:ecommerce/features/auth/data/models/user_model.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class LoginResponse {
-  final String message;
-  final UserModel user;
-  final String token;
+part 'login_response.freezed.dart';
+part 'login_response.g.dart';
 
-  const LoginResponse({
-    required this.message,
-    required this.user,
-    required this.token,
-  });
+@freezed
+abstract class LoginResponse with _$LoginResponse {
+  const factory LoginResponse({
+    required String message,
+    required UserModel user,
+    required String token,
+  }) = _LoginResponse;
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-    message: json["message"],
-    user: UserModel.fromJson(json["user"]),
-    token: json["token"],
-  );
+  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+      _$LoginResponseFromJson(json);
 }

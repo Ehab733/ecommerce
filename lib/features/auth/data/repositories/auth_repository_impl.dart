@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:ecommerce/core/error/exceptions.dart';
 import 'package:ecommerce/core/error/failure.dart';
 import 'package:ecommerce/features/auth/data/data_sources/local/auth_local_data_source.dart';
 import 'package:ecommerce/features/auth/data/data_sources/remote/auth_remote_data_source.dart';
@@ -26,9 +25,9 @@ class AuthRepositoryImpl implements AuthRepository {
       Logger().d(response.token);
       Logger().d(response.user.toEntity);
       return Right(response.user.toEntity);
-    } on AppException catch (error) {
-      Logger().d(error.message);
-      return Left(Failure(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
@@ -40,22 +39,21 @@ class AuthRepositoryImpl implements AuthRepository {
       Logger().d(response.token);
       Logger().d(response.user.toEntity);
       return Right(response.user.toEntity);
-    } on AppException catch (error) {
-      Logger().d(error.message);
-      return Left(Failure(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
   @override
-  Future<Either<Failure, void>> logout() async{
+  Future<Either<Failure, void>> logout() async {
     try {
-      
       await _localDataSource.deleteToken();
-     
+
       return const Right(null);
-    } on AppException catch (error) {
-      Logger().d(error.message);
-      return Left(Failure(error.message));
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 }

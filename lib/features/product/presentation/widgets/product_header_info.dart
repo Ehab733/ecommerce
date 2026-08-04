@@ -36,11 +36,11 @@ class ProductHeaderInfo extends StatelessWidget {
         Row(
           children: [
             Visibility(
-              visible: priceAfterDiscount == null,
+              visible: priceAfterDiscount != null,
               child: Text(
                 "EGP ${priceAfterDiscount.toString()}",
                 style: getMediumStyle(
-                  color: ColorManager.text,
+                  color: ColorManager.primary,
                   fontsize: FontSize.s18,
                 ),
               ),
@@ -48,12 +48,12 @@ class ProductHeaderInfo extends StatelessWidget {
             SizedBox(height: 6.w),
             Text(
               "EGP ${price.toString()}",
-              style: priceAfterDiscount != null
+              style: priceAfterDiscount == null
                   ? getMediumStyle(
-                      color: ColorManager.text,
+                      color: ColorManager.primary,
                       fontsize: FontSize.s18,
                     )
-                  : getTextWithLine(),
+                  : getTextWithLine(color: ColorManager.text),
             ),
           ],
         ),

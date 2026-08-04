@@ -1,35 +1,26 @@
-abstract class AuthState {}
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class AuthInitial extends AuthState {}
+part 'auth_state.freezed.dart';
 
-class RegisterLoading extends AuthState {}
+@freezed
+class AuthState with _$AuthState {
+  const factory AuthState.initial() = _Initial;
 
-class RegisterSuccess extends AuthState {}
+  // حالات التسجيل (Register)
+  const factory AuthState.registerLoading() = _RegisterLoading;
+  const factory AuthState.registerSuccess() = _RegisterSuccess;
+  const factory AuthState.registerError({required String messageError}) =
+      _RegisterError;
 
-class RegisterError extends AuthState {
-  final String messageError;
+  // حالات تسجيل الدخول (Login)
+  const factory AuthState.loginLoading() = _LoginLoading;
+  const factory AuthState.loginSuccess() = _LoginSuccess;
+  const factory AuthState.loginError({required String messageError}) =
+      _LoginError;
 
-  RegisterError(this.messageError);
-}
-
-class LoginLoading extends AuthState {}
-
-class LoginSuccess extends AuthState {}
-
-class LoginError extends AuthState {
-  final String messageError;
-
-  LoginError(this.messageError);
-}
-
-
-
-class LogoutLoading extends AuthState {}
-
-class LogoutSuccess extends AuthState {}
-
-class LogoutError extends AuthState {
-  final String messageError;
-
-  LogoutError(this.messageError);
+  // حالات تسجيل الخروج (Logout)
+  const factory AuthState.logoutLoading() = _LogoutLoading;
+  const factory AuthState.logoutSuccess() = _LogoutSuccess;
+  const factory AuthState.logoutError({required String messageError}) =
+      _LogoutError;
 }

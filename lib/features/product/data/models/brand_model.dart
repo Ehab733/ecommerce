@@ -1,20 +1,16 @@
-class Brand {
-  final String id;
-  final String name;
-  final String slug;
-  final String image;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  Brand({
-    required this.id,
-    required this.name,
-    required this.slug,
-    required this.image,
-  });
+part 'brand_model.freezed.dart';
+part 'brand_model.g.dart';
 
-  factory Brand.fromJson(Map<String, dynamic> json) => Brand(
-    id: json["_id"],
-    name: json["name"],
-    slug: json["slug"],
-    image: json["image"],
-  );
+@freezed
+abstract class Brand with _$Brand {
+  const factory Brand({
+    @JsonKey(name: '_id') required String id,
+    required String name,
+    required String slug,
+    required String image,
+  }) = _Brand;
+
+  factory Brand.fromJson(Map<String, dynamic> json) => _$BrandFromJson(json);
 }
