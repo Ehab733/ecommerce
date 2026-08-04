@@ -1,6 +1,7 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -18,38 +19,43 @@ class ProductHeaderInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // 1️⃣ اسم المنتج مع معالجة النصوص الطويلة لمنع الـ Overflow
-        Expanded(
-          child: Text(
-            title,
-            style: getMediumStyle(
-              color: ColorManager.text,
-              fontsize: FontSize.s18,
-            ),
+        Text(
+          title,
+          style: getMediumStyle(
+            color: ColorManager.text,
+            fontsize: FontSize.s18,
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(height: Sizes.s18.w),
 
         // 2️⃣ السعر
-        Visibility(
-          visible: priceAfterDiscount == null,
-          child: Text(
-            "EGP ${priceAfterDiscount.toString()}",
-            style: getMediumStyle(
-              color: ColorManager.text,
-              fontsize: FontSize.s18,
+        Row(
+          children: [
+            Visibility(
+              visible: priceAfterDiscount != null,
+              child: Text(
+                "EGP ${priceAfterDiscount.toString()}",
+                style: getMediumStyle(
+                  color: ColorManager.primary,
+                  fontsize: FontSize.s18,
+                ),
+              ),
             ),
-          ),
-        ),
-        SizedBox(width: 6.w),
-        Text(
-          "EGP ${price.toString()}",
-          style: priceAfterDiscount != null
-              ? getMediumStyle(color: ColorManager.text, fontsize: FontSize.s18)
-              : getTextWithLine(),
+            SizedBox(height: 6.w),
+            Text(
+              "EGP ${price.toString()}",
+              style: priceAfterDiscount == null
+                  ? getMediumStyle(
+                      color: ColorManager.primary,
+                      fontsize: FontSize.s18,
+                    )
+                  : getTextWithLine(color: ColorManager.text),
+            ),
+          ],
         ),
       ],
     );

@@ -1,21 +1,17 @@
-class CartProductModel {
-  final String id;
-  final String title;
-  final String imageCover;
-  final double ratingsAverage;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const CartProductModel({
-    required this.id,
-    required this.title,
-    required this.imageCover,
-    required this.ratingsAverage,
-  });
+part 'cart_product_model.freezed.dart';
+part 'cart_product_model.g.dart';
+
+@freezed
+abstract class CartProductModel with _$CartProductModel {
+  const factory CartProductModel({
+    @Default('') @JsonKey(name: '_id') String id,
+    @Default('') String title,
+    @Default('') String imageCover,
+    @Default(0.0) double ratingsAverage,
+  }) = _CartProductModel;
 
   factory CartProductModel.fromJson(Map<String, dynamic> json) =>
-      CartProductModel(
-        id: json["_id"] as String? ?? '',
-        title: json["title"] as String? ?? '',
-        imageCover: json["imageCover"] as String? ?? '',
-        ratingsAverage: (json["ratingsAverage"] as num?)?.toDouble() ?? 0.0,
-      );
+      _$CartProductModelFromJson(json);
 }

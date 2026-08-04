@@ -11,3 +11,5 @@ class RemoteException extends AppException {
 class LocaleException extends AppException {
   const LocaleException(super.message);
 }
+
+

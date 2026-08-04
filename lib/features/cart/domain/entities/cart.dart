@@ -1,8 +1,8 @@
 import 'package:ecommerce/features/cart/domain/entities/cart_item_data.dart';
 
 class Cart {
-  final List<CartItemData> items;
-  final num totalCartPrice;
+  final List<CartItemData> products;
+  final double totalCartPrice;
 
-  const Cart({required this.items, required this.totalCartPrice});
+  const Cart({required this.products, required this.totalCartPrice});
 }

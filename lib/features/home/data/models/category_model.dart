@@ -1,30 +1,20 @@
-class CategoryModel {
-  final String id;
-  final String name;
-  final String slug;
-  final String image;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const CategoryModel({
-    required this.id,
-    required this.name,
-    required this.slug,
-    required this.image,
-    this.createdAt,
-    this.updatedAt,
-  });
+part 'category_model.freezed.dart';
+part 'category_model.g.dart';
 
-  factory CategoryModel.fromJson(Map<String, dynamic> json) => CategoryModel(
-    id: json['_id'],
-    name: json['name'],
-    slug: json['slug'],
-    image: json['image'],
-    createdAt: json['createdAt'] == null
-        ? null
-        : DateTime.parse(json['createdAt'] as String),
-    updatedAt: json['updatedAt'] == null
-        ? null
-        : DateTime.parse(json['updatedAt'] as String),
-  );
+@freezed
+abstract class CategoryModel with _$CategoryModel {
+  const factory CategoryModel({
+    @JsonKey(name: '_id') required String id,
+    required String name,
+    required String slug,
+    required String image,
+    required DateTime? createdAt,
+    required DateTime? updatedAt,
+  }) = _CategoryModel;
+
+  factory CategoryModel.fromJson(Map<String, dynamic> json) =>
+      _$CategoryModelFromJson(json);
+
 }

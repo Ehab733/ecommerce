@@ -6,6 +6,7 @@ import 'package:ecommerce/features/cart/data/mappers/cart_mapper.dart';
 import 'package:ecommerce/features/cart/domain/entities/cart.dart';
 import 'package:ecommerce/features/cart/domain/respositories/cart_repository.dart';
 import 'package:injectable/injectable.dart';
+import 'package:logger/logger.dart';
 
 @LazySingleton(as: CartRepository)
 class CartRepositoryImpl implements CartRepository {
@@ -19,7 +20,7 @@ class CartRepositoryImpl implements CartRepository {
       await _cartRemoteDataSource.addProductToCart(productId);
       return const Right(null);
     } on RemoteException catch (error) {
-      return Left(Failure(error.message));
+      return Left(ErrorHandler.handle(error.message));
     }
   }
 
@@ -27,9 +28,11 @@ class CartRepositoryImpl implements CartRepository {
   Future<Either<Failure, Cart>> getCart() async {
     try {
       final response = await _cartRemoteDataSource.getCart();
-      return Right(response.cartModel.toEntity);
-    } on RemoteException catch (error) {
-      return Left(Failure(error.message));
+      Logger().i(response.data.toEntity);
+      return Right(response.data.toEntity);
+    } catch (error) {
+      Logger().e(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
@@ -43,9 +46,10 @@ class CartRepositoryImpl implements CartRepository {
         productId,
         quantity,
       );
-      return Right(response.cartModel.toEntity);
-    } on RemoteException catch (error) {
-      return Left(Failure(error.message));
+      return Right(response.data.toEntity);
+    } catch (error) {
+      Logger().e(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 
@@ -53,9 +57,10 @@ class CartRepositoryImpl implements CartRepository {
   Future<Either<Failure, Cart>> deleteFormCart(String productId) async {
     try {
       final response = await _cartRemoteDataSource.deleteFormCart(productId);
-      return Right(response.cartModel.toEntity );
-    } on RemoteException catch (error) {
-      return Left(Failure(error.message));
+      return Right(response.data.toEntity);
+    } catch (error) {
+      Logger().e(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 }

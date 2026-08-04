@@ -1,56 +1,36 @@
-part of 'cart_cubit.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-sealed class CartState {}
+part 'cart_state.freezed.dart';
 
-final class CartInitial extends CartState {}
+@freezed
+class CartState with _$CartState {
+  const factory CartState.initial() = _initial;
 
-// add
+  // add
+  const factory CartState.addToCartLoading({required String productId}) =
+      _addToCartLoading;
+  const factory CartState.addToCartError({
+    required String errorMessage,
+    required String productId,
+  }) = _addToCartError;
+  const factory CartState.addToCartSuccess({required String productId}) =
+      _addToCartSuccess;
 
-final class AddToCartLoading extends CartState {
-  final String productId;
+  // get
+  const factory CartState.getCartLoading() = _getCartLoading;
+  const factory CartState.getCartError({required String errorMessage}) =
+      _getCartError;
+  const factory CartState.getCartSuccess() = _getCartSuccess;
 
-  AddToCartLoading(this.productId);
+  // update
+  const factory CartState.updateCartLoading() = _updateCartLoading;
+  const factory CartState.updateCartError({required String errorMessage}) =
+      _updateCartError;
+  const factory CartState.updateCartSuccess() = _updateCartSuccess;
+
+  //delete
+  const factory CartState.deleteFromCartLoading() = _deleteFromCartLoading;
+  const factory CartState.deleteFromCartError({required String errorMessage}) =
+      _deleteFromCartError;
+  const factory CartState.deleteFromCartSuccess() = _deleteFromCartSuccess;
 }
-
-final class AddToCartError extends CartState {
-  final String productId;
-
-  final String message;
-  AddToCartError(this.message, this.productId);
-}
-
-final class AddToCartSuccess extends CartState {
-  final String productId;
-  AddToCartSuccess(this.productId);
-}
-
-// get
-
-final class GetCartLoading extends CartState {}
-
-final class GetCartError extends CartState {
-  final String message;
-  GetCartError(this.message);
-}
-
-final class GetCartSuccess extends CartState {}
-
-// update
-final class UpdateCartLoading extends CartState {}
-
-final class UpdateCartError extends CartState {
-  final String message;
-  UpdateCartError(this.message);
-}
-
-final class UpdateCartSuccess extends CartState {}
-
-// delete
-final class DeleteFromCartLoading extends CartState {}
-
-final class DeleteFromCartError extends CartState {
-  final String message;
-  DeleteFromCartError(this.message);
-}
-
-final class DeleteFromCartSuccess extends CartState {}

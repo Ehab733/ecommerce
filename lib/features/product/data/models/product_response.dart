@@ -1,23 +1,18 @@
 import 'package:ecommerce/features/home/data/models/meta_data.dart';
 import 'package:ecommerce/features/product/data/models/product_model.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class ProductResponse {
-  final int results;
-  final Metadata metadata;
-  final List<ProductModel> products;
+part 'product_response.freezed.dart';
+part 'product_response.g.dart';
 
-  ProductResponse({
-    required this.results,
-    required this.metadata,
-    required this.products,
-  });
+@freezed
+abstract class ProductResponse with _$ProductResponse {
+  const factory ProductResponse({
+    required int results,
+    required MetaData metadata,
+    required List<ProductModel> data,
+  }) = _ProductResponse;
 
   factory ProductResponse.fromJson(Map<String, dynamic> json) =>
-      ProductResponse(
-        results: json["results"] as int,
-        metadata: Metadata.fromJson(json["metadata"] as Map<String, dynamic>),
-        products: (json["data"] as List<dynamic>)
-            .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+      _$ProductResponseFromJson(json);
 }

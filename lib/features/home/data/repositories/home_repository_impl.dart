@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:ecommerce/core/error/exceptions.dart';
 import 'package:ecommerce/core/error/failure.dart';
 import 'package:ecommerce/features/home/data/data_sources/remote_data_source/home_remote_data_source.dart';
 import 'package:ecommerce/features/home/data/mappers/category_mapper.dart';
@@ -17,10 +16,10 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Either<Failure, List<Category>>> getCategories() async {
     try {
       final response = await _homeRemoteDataSource.getCategories();
-      return Right(response.categories.map((e) => e.toEntity).toList());
-    } on RemoteException catch (error) {
-      Logger().d(error.message);
-      return Left(Failure(error.message));
+      return Right(response.data.map((e) => e.toEntity).toList());
+    } catch (error) {
+      Logger().d(error);
+      return Left(ErrorHandler.handle(error));
     }
   }
 }

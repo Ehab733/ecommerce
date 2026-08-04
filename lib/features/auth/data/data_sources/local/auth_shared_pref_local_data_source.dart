@@ -13,7 +13,6 @@ class AuthSharedPrefLocalDataSource implements AuthLocalDataSource {
   @override
   Future<void> setToken(String token) async {
     try {
-      
       await _sharePref.setString(CasheConstants.tokenKey, token);
     } catch (error) {
       throw const LocaleException('Failed to save token');
@@ -23,10 +22,18 @@ class AuthSharedPrefLocalDataSource implements AuthLocalDataSource {
   @override
   Future<String?> getToken(String token) async {
     try {
-      
       return _sharePref.getString(CasheConstants.tokenKey);
     } catch (error) {
       throw const LocaleException('Failed to get token');
+    }
+  }
+
+  @override
+  Future<void> deleteToken() {
+    try {
+      return _sharePref.remove(CasheConstants.tokenKey);
+    } catch (error) {
+      throw const LocaleException('Failed to clear token');
     }
   }
 }

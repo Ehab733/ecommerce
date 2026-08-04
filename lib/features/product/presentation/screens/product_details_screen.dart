@@ -2,7 +2,8 @@ import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
-import 'package:ecommerce/core/utils/ui_utils.dart';
+import 'package:ecommerce/features/product/presentation/manager/product_state.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_state.dart';
 import 'package:ecommerce/core/widgets/bottom_bar.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
 import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
@@ -14,22 +15,24 @@ import 'package:ecommerce/features/product/presentation/widgets/product_header_i
 import 'package:ecommerce/features/product/presentation/widgets/product_image_slider.dart';
 import 'package:ecommerce/features/product/presentation/widgets/product_rating_and_quantity.dart';
 import 'package:ecommerce/features/product/presentation/widgets/product_size_selector.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  const ProductDetailsScreen({super.key});
+  final Product _product;
+  const ProductDetailsScreen({super.key, required this._product});
 
   @override
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  int _quantity = 1;
   int _selectedSizeIndex = 2;
   int _selectedColorIndex = 1;
-  bool _isFavorite = false;
 
   final List<String> _sizes = const ['38', '39', '40', '41', '42'];
   final List<Color> _colors = const [
@@ -39,83 +42,100 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     Color(0xFF1CB142),
     Color(0xFFFE6B60),
   ];
-  final _productCubit = getIt.get<ProductCubit>();
+
   @override
   Widget build(BuildContext context) {
-    final product = ModalRoute.settingsOf(context)!.arguments as Product;
     return BlocProvider(
-      create: (_) => _productCubit,
+      create: (_) => getIt.get<ProductCubit>(),
       child: Scaffold(
         backgroundColor: ColorManager.white,
         appBar: customHeader(
+          leading: false,
           actions: [
             IconButton(
               onPressed: () {},
               icon: Icon(
                 Icons.search,
                 size: Sizes.s24.r,
-                color: ColorManager.primary,
+                color: ColorManager.text,
               ),
             ),
             IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.cart);
-              },
+              onPressed: () => context.push(Routes.cart),
               icon: Icon(
                 Icons.shopping_cart_outlined,
                 size: Sizes.s24.r,
-                color: ColorManager.primary,
+                color: ColorManager.text,
               ),
             ),
           ],
-          title: product.brand.name,
+          title: widget._product.brand.name,
         ),
         body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  ProductImageSlider(
-                    images: product.images,
-                    isFavorite: _isFavorite,
-                    onFavoriteTap: () {
-                      _isFavorite = !_isFavorite;
-                      setState(() {});
-                    },
-                  ),
-                  SizedBox(height: Sizes.s8.h),
-                  ProductHeaderInfo(
-                    title: product.title,
-                    price: product.price.toString(),
-                    priceAfterDiscount: product.priceAfterDiscount.toString(),
-                  ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: 8.h),
 
-                  BlocBuilder<ProductCubit, GetProductState>(
+                  // 🖼️ سلايدر الصور + ربط الـ Favourite بحالة الـ WishListCubit
+                  BlocBuilder<WishListCubit, WishListState>(
                     builder: (context, state) {
-                      return ProductRatingAndQuantity(
-                        soldCount: product.sold.toString(),
-                        rating:
-                            '${product.ratingsAverage} (${product.ratingsQuantity})',
-                        quantity: _quantity,
-                        onIncrement: () {
-                          _quantity++;
-                          _productCubit.onQuantityChanged();
-                        },
-                        onDecrement: () {
-                          if (_quantity > 1) {
-                            _quantity--;
-                            _productCubit.onQuantityChanged();
+                      final wishlistCubit = context.read<WishListCubit>();
+                      final bool isFavorite = wishlistCubit.favouriteProductIds
+                          .contains(widget._product.id);
+
+                      return ProductImageSlider(
+                        images: widget._product.images,
+                        isFavorite: isFavorite,
+                        onFavoriteTap: () {
+                          if (isFavorite) {
+                            wishlistCubit.deleteProductFromWishList(
+                              widget._product.id,
+                            );
+                          } else {
+                            wishlistCubit.addProductToWishList(
+                              widget._product.id,
+                            );
                           }
                         },
                       );
                     },
                   ),
 
+                  SizedBox(height: Sizes.s12.h),
+
+                  // 📝 بيانات اسم المنتج والسعر
+                  ProductHeaderInfo(
+                    title: widget._product.title,
+                    price: widget._product.price.toString(),
+                    priceAfterDiscount: widget._product.priceAfterDiscount
+                        ?.toString(),
+                  ),
+                  SizedBox(height: 16.h),
+
+                  // ⭐ التقييمات والكمية
+                  BlocBuilder<ProductCubit, GetProductState>(
+                    builder: (context, state) {
+                      final productCubit = context.read<ProductCubit>();
+                      return ProductRatingAndQuantity(
+                        soldCount: widget._product.sold.toString(),
+                        rating:
+                            '${widget._product.ratingsAverage} (${widget._product.ratingsQuantity})',
+                        quantity: productCubit.quantity,
+                        onIncrement: () => productCubit.incrementQuantity(),
+                        onDecrement: () => productCubit.decrementQuantity(),
+                      );
+                    },
+                  ),
+
                   SizedBox(height: Sizes.s16.h),
-                  ProductDescription(description: product.description),
+                  ProductDescription(description: widget._product.description),
                   SizedBox(height: Sizes.s16.h),
+
+                  // 📏 اختيار المقاس
                   ProductSizeSelector(
                     sizes: _sizes,
                     selectedIndex: _selectedSizeIndex,
@@ -123,6 +143,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         setState(() => _selectedSizeIndex = index),
                   ),
                   SizedBox(height: Sizes.s16.h),
+
+                  // 🎨 اختيار اللون
                   ProductColorSelector(
                     colors: _colors,
                     selectedIndex: _selectedColorIndex,
@@ -135,29 +157,42 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ],
         ),
+
+        // 🛒 شريط الشراء السفلي
         bottomNavigationBar: BlocBuilder<ProductCubit, GetProductState>(
           builder: (context, state) {
+            final currentQuantity = context.read<ProductCubit>().quantity;
+            final num unitPrice =
+                widget._product.priceAfterDiscount ?? widget._product.price;
+            final num totalAmount = unitPrice * currentQuantity;
+
             return BottomBar(
-              totalPrice: "EGP ${(product.price * _quantity).toString()}",
+              totalPrice: "EGP $totalAmount",
+              title: 'Add to cart',
+              iconLeading: Icons.add_shopping_cart_rounded,
               onClicked: () async {
-                UiUtils.showLoading(context);
+                EasyLoading.show(
+                  status: 'Adding to cart...',
+                  dismissOnTap: false,
+                );
                 try {
                   final cartCubit = context.read<CartCubit>();
-                  await cartCubit.addToCart(product.id);
-                  await cartCubit.updateCart(product.id, _quantity);
+                  await cartCubit.addToCart(widget._product.id);
+                  await cartCubit.updateCart(
+                    widget._product.id,
+                    currentQuantity,
+                  );
 
                   if (context.mounted) {
-                    UiUtils.hideLoading(context);
-                    Navigator.pushNamed(context, Routes.cart);
+                    EasyLoading.dismiss();
+                    context.push(Routes.cart);
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    UiUtils.hideLoading(context);
+                    EasyLoading.dismiss();
                   }
                 }
               },
-              title: 'Add to cart',
-              iconLeading: Icons.add_shopping_cart,
             );
           },
         ),

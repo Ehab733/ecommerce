@@ -1,28 +1,18 @@
 import 'package:ecommerce/features/cart/data/models/cart_item_model.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class CartModel {
-  final String id;
-  final String cartOwner;
-  final List<CartItemModel> items;
-  final num totalCartPrice;
+part 'cart_model.freezed.dart';
+part 'cart_model.g.dart';
 
-  const CartModel({
-    required this.id,
-    required this.cartOwner,
-    required this.items,
-    required this.totalCartPrice,
-  });
+@freezed
+abstract class CartModel with _$CartModel {
+  const factory CartModel({
+    @Default('') @JsonKey(name: '_id') String id,
+    @Default('') String cartOwner,
+    @Default([]) List<CartItemModel> products,
+    @Default(0.0) double totalCartPrice,
+  }) = _CartModel;
 
-  factory CartModel.fromJson(Map<String, dynamic> json) {
-    return CartModel(
-      id: json['_id'] as String? ?? '',
-      cartOwner: json['cartOwner'] as String? ?? '',
-      items:
-          (json['products'] as List<dynamic>?)
-              ?.map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      totalCartPrice: json['totalCartPrice'] as num? ?? 0,
-    );
-  }
+  factory CartModel.fromJson(Map<String, dynamic> json) =>
+      _$CartModelFromJson(json);
 }

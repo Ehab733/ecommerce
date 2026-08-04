@@ -1,20 +1,28 @@
 import 'package:ecommerce/core/app_bloc_observer.dart';
-import 'package:ecommerce/core/contants/constants.dart';
 import 'package:ecommerce/core/di/get_it.dart';
-import 'package:ecommerce/core/routes/route_generator.dart';
-import 'package:ecommerce/core/routes/routes.dart';
+import 'package:ecommerce/core/network/network_cubit.dart';
+import 'package:ecommerce/core/routes/app_router.dart';
+import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart';
 import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await _initDefered();
+  FlutterNativeSplash.remove();
+  runApp(const EcommerceApp());
+}
+
+Future<void> _initDefered() async {
   Bloc.observer = AppBlocObserver();
   await configureDependencies();
-  runApp(const EcommerceApp());
+  await ScreenUtil.ensureScreenSize();
 }
 
 class EcommerceApp extends StatelessWidget {
@@ -26,25 +34,19 @@ class EcommerceApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => getIt.get<AuthCubit>()),
         BlocProvider(create: (_) => getIt.get<CartCubit>()),
+        BlocProvider(create: (_) => getIt.get<WishListCubit>()),
+        BlocProvider(create: (_) => getIt.get<NetworkCubit>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(430, 932),
         minTextAdapt: true,
         splitScreenMode: true,
-        builder: (_, child) => MaterialApp(
+        builder: (_, child) => MaterialApp.router(
+          builder: EasyLoading.init(),
           debugShowCheckedModeBanner: false,
-          onGenerateRoute: RouteGenerator.getRoute,
-          initialRoute: isHaveToken == false ? Routes.login : Routes.home,
+          routerConfig: AppRouter.router,
         ),
       ),
     );
   }
-}
-
-Future<bool> isHaveToken() async {
-  final prefs = await SharedPreferences.getInstance();
-  if (prefs.getString(CasheConstants.tokenKey) != null) {
-    return true;
-  }
-  return false;
 }

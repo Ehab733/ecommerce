@@ -1,31 +1,48 @@
+import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
+import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
-  
-  const SectionHeader({super.key, required this.title});
+  final VoidCallback? onViewAllTap;
+
+  const SectionHeader({super.key, required this.title, this.onViewAllTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0).r,
+      padding: EdgeInsets.symmetric(
+        horizontal: Insets.s16.w,
+        vertical: Insets.s8.h,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 18, 
-              fontWeight: FontWeight.bold, 
-              color: Color(0xFF004182)
+            style: getBoldStyle(
+              color: ColorManager.primary,
+              fontsize: FontSize.s18.sp,
             ),
           ),
-          const Text(
-            "view all", 
-            style: TextStyle(
-              fontSize: 14, 
-              color: Color(0xFF004182)
+          InkWell(
+            borderRadius: BorderRadius.circular(Insets.s5.r),
+            onTap: onViewAllTap,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: Insets.s5.w,
+                vertical: Insets.s2.h,
+              ),
+              child: Text(
+                "view all",
+                style: getRegularStyle(
+                  color: ColorManager.primary.withAlpha(200),
+                  fontsize: FontSize.s14.sp,
+                ),
+              ),
             ),
           ),
         ],

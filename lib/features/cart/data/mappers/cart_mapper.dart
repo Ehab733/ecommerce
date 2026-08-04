@@ -4,7 +4,7 @@ import 'package:ecommerce/features/cart/domain/entities/cart.dart';
 
 extension CartMapper on CartModel {
   Cart get toEntity => Cart(
-    items: items.map((cartItemModel) => cartItemModel.toEntity).toList(),
+    products: products.map((cartItemModel) => cartItemModel.toEntity).toList(),
     totalCartPrice: totalCartPrice,
   );
 }

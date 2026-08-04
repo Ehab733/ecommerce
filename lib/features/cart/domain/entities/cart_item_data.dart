@@ -3,7 +3,7 @@ import 'package:ecommerce/features/cart/domain/entities/cart_product.dart';
 class CartItemData {
   final int count;
   final String id;
-  final num price;
+  final double price;
   final CartProduct product;
 
   const CartItemData({
