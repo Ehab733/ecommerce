@@ -30,7 +30,6 @@ abstract class RegisterModule {
           final token = sharedPreferences.getString(CasheConstants.tokenKey);
 
           if (token != null && token.isNotEmpty) {
-            // 💡 تأكد من مطابقة هذا المفتاح لما يتوقعه الـ Backend (مثلاً: token)
             options.headers[APIConstants.tokenKey] = token;
           }
 
@@ -42,7 +41,6 @@ abstract class RegisterModule {
             '❌ API Error [${error.response?.statusCode}]: ${error.response?.data}',
           );
 
-          // نمرر الخطأ للطبقات الأعلى لتقوم بالتقاطه
           return handler.next(error);
         },
       ),

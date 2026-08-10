@@ -7,8 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProductHeaderInfo extends StatelessWidget {
   final String title;
-  final String price;
-  final String? priceAfterDiscount;
+  final double price;
+  final double? priceAfterDiscount;
 
   const ProductHeaderInfo({
     super.key,
@@ -36,7 +36,7 @@ class ProductHeaderInfo extends StatelessWidget {
         Row(
           children: [
             Visibility(
-              visible: priceAfterDiscount != null,
+              visible: (priceAfterDiscount != null && priceAfterDiscount! > 0),
               child: Text(
                 "EGP ${priceAfterDiscount.toString()}",
                 style: getMediumStyle(
@@ -45,10 +45,10 @@ class ProductHeaderInfo extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 6.w),
+            SizedBox(height: 8.w),
             Text(
               "EGP ${price.toString()}",
-              style: priceAfterDiscount == null
+              style: priceAfterDiscount == null && priceAfterDiscount! > 0
                   ? getMediumStyle(
                       color: ColorManager.primary,
                       fontsize: FontSize.s18,

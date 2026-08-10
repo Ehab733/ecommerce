@@ -110,9 +110,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   // 📝 بيانات اسم المنتج والسعر
                   ProductHeaderInfo(
                     title: widget._product.title,
-                    price: widget._product.price.toString(),
-                    priceAfterDiscount: widget._product.priceAfterDiscount
-                        ?.toString(),
+                    price: widget._product.price,
+                    priceAfterDiscount: widget._product.priceAfterDiscount!,
                   ),
                   SizedBox(height: 16.h),
 

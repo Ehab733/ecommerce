@@ -17,7 +17,7 @@ _ProductModel _$ProductModelFromJson(
   slug: json['slug'] as String,
   description: json['description'] as String,
   quantity: (json['quantity'] as num).toInt(),
-  price: (json['price'] as num).toInt(),
+  price: (json['price'] as num).toDouble(),
   imageCover: json['imageCover'] as String,
   category: CategoryModel.fromJson(json['category'] as Map<String, dynamic>),
   brand: Brand.fromJson(json['brand'] as Map<String, dynamic>),

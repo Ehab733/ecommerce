@@ -1,6 +1,7 @@
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/network/network_cubit.dart';
 import 'package:ecommerce/core/network/network_state.dart';
+import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
@@ -36,156 +37,143 @@ class _CategoriesSectionState extends State<CategoriesSection> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () => _homeCubit.getCategories(),
-      color: Colors.white, // لون أسهم ومؤشر التحميل
-      backgroundColor: Colors.red, // لون خلفية الدائرة
-      strokeWidth: 3.0,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1️⃣ الجزء الخاص بالعنوان "All Featured" وأزرار Sort / Filter
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: Insets.s16.w,
-              vertical: Insets.s8.h,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "All Featured",
-                  style: getBoldStyle(
-                    color: Colors.black,
-                    fontsize: FontSize.s18.sp,
-                  ),
-                ),
-                Row(
-                  children: [
-                    // زر Sort
-                    _buildActionButton(
-                      label: 'Sort',
-                      icon: Icons.swap_vert_rounded,
-                      onTap: () {},
-                    ),
-                    SizedBox(width: Sizes.s8.w),
-                    // زر Filter
-                    _buildActionButton(
-                      label: 'Filter',
-                      icon: Icons.filter_alt_outlined,
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ],
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.s16.w,
+            vertical: Insets.s8.h,
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "All Featured",
+                style: getBoldStyle(
+                  color: Colors.black,
+                  fontsize: FontSize.s18.sp,
+                ),
+              ),
+              Row(
+                children: [
+                  _buildActionButton(
+                    label: 'Sort',
+                    icon: Icons.swap_vert_rounded,
+                    onTap: () {},
+                  ),
+                  SizedBox(width: Sizes.s8.w),
+                  _buildActionButton(
+                    label: 'Filter',
+                    icon: Icons.filter_alt_outlined,
+                    onTap: () {},
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
 
-          SizedBox(height: Sizes.s12.h),
+        SizedBox(height: Sizes.s12.h),
 
-          // 2️⃣ القائمة الأفقية الدائرية للتصنيفات (Horizontal Round List)
-          SizedBox(
-            height: 95.h,
-            child: BlocProvider(
-              create: (context) => _homeCubit,
-              child: BlocListener<NetworkCubit, NetworkState>(
-                listener: (context, state) {
-                  state.whenOrNull(
-                    connected: () {
-                      final isAlreadySuccess = _homeCubit.state.maybeWhen(
-                        getCategoriesSuccess: (_) => true,
-                        orElse: () => false,
-                      );
-                      if (!isAlreadySuccess) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _homeCubit.getCategories();
-                        });
-                      }
-                    },
-                    disConnected: () {
-                      UiUtils.showMessage(context, 'No Internet Connection');
-                    },
+        SizedBox(
+          height: 95.h,
+          child: BlocProvider(
+            create: (context) => _homeCubit,
+            child: BlocListener<NetworkCubit, NetworkState>(
+              listener: (context, state) {
+                state.whenOrNull(
+                  connected: () {
+                    final isAlreadySuccess = _homeCubit.state.maybeWhen(
+                      getCategoriesSuccess: (_) => true,
+                      orElse: () => false,
+                    );
+                    if (!isAlreadySuccess) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _homeCubit.getCategories();
+                      });
+                    }
+                  },
+                  disConnected: () {
+                    UiUtils.showMessage(context, 'No Internet Connection');
+                  },
+                );
+              },
+              child: BlocBuilder<HomeCubit, HomeCubitState>(
+                builder: (_, state) {
+                  return state.maybeWhen(
+                    getCategoriesLoading: () =>
+                        const Center(child: LoadingIndicator()),
+                    getCategoriesFailure: (message) => Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(Insets.s16.sp),
+                        child: ErrorIndicator(errorMessage: message),
+                      ),
+                    ),
+                    getCategoriesSuccess: (categories) => ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: Insets.s16.w),
+                      itemCount: categories.length,
+                      separatorBuilder: (context, index) =>
+                          SizedBox(width: Sizes.s16.w),
+                      itemBuilder: (context, index) {
+                        final category = categories[index];
+                        return InkWell(
+                          onTap: () {
+                            context.push(Routes.products, extra: category);
+                          },
+                          borderRadius: BorderRadius.circular(50.r),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 62.w,
+                                height: 62.h,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50.r),
+                                  child: Image.network(
+                                    category.image,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Container(
+                                              color: Colors.grey.shade200,
+                                              child: Icon(
+                                                Icons.category_outlined,
+                                                color: Colors.grey,
+                                                size: 24.sp,
+                                              ),
+                                            ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: Sizes.s4.h),
+                              Text(
+                                category.name,
+                                style: getMediumStyle(
+                                  color: const Color(0xFF212121),
+                                  fontsize: FontSize.s11.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    orElse: () => const SizedBox(),
                   );
                 },
-                child: BlocBuilder<HomeCubit, HomeCubitState>(
-                  builder: (_, state) {
-                    return state.maybeWhen(
-                      getCategoriesLoading: () =>
-                          const Center(child: LoadingIndicator()),
-                      getCategoriesFailure: (message) => Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(Insets.s16.sp),
-                          child: ErrorIndicator(errorMessage: message),
-                        ),
-                      ),
-                      getCategoriesSuccess: (categories) => ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        padding: EdgeInsets.symmetric(horizontal: Insets.s16.w),
-                        itemCount: categories.length,
-                        separatorBuilder: (context, index) =>
-                            SizedBox(width: Sizes.s16.w),
-                        itemBuilder: (context, index) {
-                          final category = categories[index];
-                          return InkWell(
-                            onTap: () {
-                              context.push(Routes.products, extra: category);
-                            },
-                            borderRadius: BorderRadius.circular(50.r),
-                            child: Column(
-                              children: [
-                                // الصورة الدائرية للقسم
-                                Container(
-                                  width: 62.w,
-                                  height: 62.h,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50.r),
-                                    child: Image.network(
-                                      category.image,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                color: Colors.grey.shade200,
-                                                child: Icon(
-                                                  Icons.category_outlined,
-                                                  color: Colors.grey,
-                                                  size: 24.sp,
-                                                ),
-                                              ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: Sizes.s4.h),
-                                // اسم القسم
-                                Text(
-                                  category.name,
-                                  style: getMediumStyle(
-                                    color: const Color(0xFF212121),
-                                    fontsize: FontSize.s11.sp,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      orElse: () => const SizedBox(),
-                    );
-                  },
-                ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // ودجت صغيرة لأزرار Sort و Filter
   Widget _buildActionButton({
     required String label,
     required IconData icon,

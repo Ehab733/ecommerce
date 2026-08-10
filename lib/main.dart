@@ -1,4 +1,4 @@
-import 'package:ecommerce/core/app_bloc_observer.dart';
+import 'package:ecommerce/core/helpers/app_bloc_observer.dart';
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/network/network_cubit.dart';
 import 'package:ecommerce/core/routes/app_router.dart';

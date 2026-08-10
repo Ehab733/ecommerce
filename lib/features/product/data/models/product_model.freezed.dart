@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductModel {
 
- int get sold; List<String> get images; int get ratingsQuantity;@JsonKey(name: '_id') String get id; String get title; String get slug; String get description; int get quantity; int get price; String get imageCover; CategoryModel get category; Brand get brand; double get ratingsAverage; String get createdAt; String get updatedAt; double? get priceAfterDiscount;
+ int get sold; List<String> get images; int get ratingsQuantity;@JsonKey(name: '_id') String get id; String get title; String get slug; String get description; int get quantity; double get price; String get imageCover; CategoryModel get category; Brand get brand; double get ratingsAverage; String get createdAt; String get updatedAt; double? get priceAfterDiscount;
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -49,7 +49,7 @@ abstract mixin class $ProductModelCopyWith<$Res>  {
   factory $ProductModelCopyWith(ProductModel value, $Res Function(ProductModel) _then) = _$ProductModelCopyWithImpl;
 @useResult
 $Res call({
- int sold, List<String> images, int ratingsQuantity,@JsonKey(name: '_id') String id, String title, String slug, String description, int quantity, int price, String imageCover, CategoryModel category, Brand brand, double ratingsAverage, String createdAt, String updatedAt, double? priceAfterDiscount
+ int sold, List<String> images, int ratingsQuantity,@JsonKey(name: '_id') String id, String title, String slug, String description, int quantity, double price, String imageCover, CategoryModel category, Brand brand, double ratingsAverage, String createdAt, String updatedAt, double? priceAfterDiscount
 });
 
 
@@ -77,7 +77,7 @@ as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
-as int,imageCover: null == imageCover ? _self.imageCover : imageCover // ignore: cast_nullable_to_non_nullable
+as double,imageCover: null == imageCover ? _self.imageCover : imageCover // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as CategoryModel,brand: null == brand ? _self.brand : brand // ignore: cast_nullable_to_non_nullable
 as Brand,ratingsAverage: null == ratingsAverage ? _self.ratingsAverage : ratingsAverage // ignore: cast_nullable_to_non_nullable
@@ -187,7 +187,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  int price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  double price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
 return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.title,_that.slug,_that.description,_that.quantity,_that.price,_that.imageCover,_that.category,_that.brand,_that.ratingsAverage,_that.createdAt,_that.updatedAt,_that.priceAfterDiscount);case _:
@@ -208,7 +208,7 @@ return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.tit
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  int price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  double price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel():
 return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.title,_that.slug,_that.description,_that.quantity,_that.price,_that.imageCover,_that.category,_that.brand,_that.ratingsAverage,_that.createdAt,_that.updatedAt,_that.priceAfterDiscount);case _:
@@ -228,7 +228,7 @@ return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.tit
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  int price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int sold,  List<String> images,  int ratingsQuantity, @JsonKey(name: '_id')  String id,  String title,  String slug,  String description,  int quantity,  double price,  String imageCover,  CategoryModel category,  Brand brand,  double ratingsAverage,  String createdAt,  String updatedAt,  double? priceAfterDiscount)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
 return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.title,_that.slug,_that.description,_that.quantity,_that.price,_that.imageCover,_that.category,_that.brand,_that.ratingsAverage,_that.createdAt,_that.updatedAt,_that.priceAfterDiscount);case _:
@@ -243,7 +243,7 @@ return $default(_that.sold,_that.images,_that.ratingsQuantity,_that.id,_that.tit
 @JsonSerializable()
 
 class _ProductModel implements ProductModel {
-  const _ProductModel({required this.sold, required  List<String> images, required this.ratingsQuantity, @JsonKey(name: '_id') required this.id, required this.title, required this.slug, required this.description, required this.quantity, required this.price, required this.imageCover, required this.category, required this.brand, required this.ratingsAverage, required this.createdAt, required this.updatedAt, required this.priceAfterDiscount}): _images = images;
+  const _ProductModel({required this.sold, required  List<String> images, required this.ratingsQuantity, @JsonKey(name: '_id') required this.id, required this.title, required this.slug, required this.description, required this.quantity, required this.price, required this.imageCover, required this.category, required this.brand, required this.ratingsAverage, required this.createdAt, required this.updatedAt, this.priceAfterDiscount}): _images = images;
   factory _ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
 @override final  int sold;
@@ -260,7 +260,7 @@ class _ProductModel implements ProductModel {
 @override final  String slug;
 @override final  String description;
 @override final  int quantity;
-@override final  int price;
+@override final  double price;
 @override final  String imageCover;
 @override final  CategoryModel category;
 @override final  Brand brand;
@@ -302,7 +302,7 @@ abstract mixin class _$ProductModelCopyWith<$Res> implements $ProductModelCopyWi
   factory _$ProductModelCopyWith(_ProductModel value, $Res Function(_ProductModel) _then) = __$ProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- int sold, List<String> images, int ratingsQuantity,@JsonKey(name: '_id') String id, String title, String slug, String description, int quantity, int price, String imageCover, CategoryModel category, Brand brand, double ratingsAverage, String createdAt, String updatedAt, double? priceAfterDiscount
+ int sold, List<String> images, int ratingsQuantity,@JsonKey(name: '_id') String id, String title, String slug, String description, int quantity, double price, String imageCover, CategoryModel category, Brand brand, double ratingsAverage, String createdAt, String updatedAt, double? priceAfterDiscount
 });
 
 
@@ -330,7 +330,7 @@ as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
-as int,imageCover: null == imageCover ? _self.imageCover : imageCover // ignore: cast_nullable_to_non_nullable
+as double,imageCover: null == imageCover ? _self.imageCover : imageCover // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as CategoryModel,brand: null == brand ? _self.brand : brand // ignore: cast_nullable_to_non_nullable
 as Brand,ratingsAverage: null == ratingsAverage ? _self.ratingsAverage : ratingsAverage // ignore: cast_nullable_to_non_nullable

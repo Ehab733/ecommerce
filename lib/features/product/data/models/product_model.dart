@@ -16,14 +16,14 @@ abstract class ProductModel with _$ProductModel {
     required String slug,
     required String description,
     required int quantity,
-    required int price,
+    required double price,
     required String imageCover,
     required CategoryModel category,
     required Brand brand,
     required double ratingsAverage,
     required String createdAt,
     required String updatedAt,
-    required double? priceAfterDiscount,
+    double? priceAfterDiscount,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
