@@ -30,21 +30,28 @@ class ErrorIndicator extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // أيقونة تنبيه جذابة
             Icon(
               Icons.error_outline_rounded,
               color: ColorManager.error,
-              size: 36.sp,
+              size: 36.r,
             ),
             SizedBox(height: Sizes.s8.h),
 
-            // نص الخطأ
-            Text(
-              errorMessage,
-              textAlign: TextAlign.center,
-              style: getMediumStyle(
-                color: ColorManager.error,
-                fontsize: FontSize.s14.sp,
+            // استخدام Flexible لمنع النص من تجاوز حدود الـ Column
+            Flexible(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Text(
+                  errorMessage,
+                  textAlign: TextAlign.center,
+                  maxLines: 4, // تحديد أقصى عدد للسطور إذا لزم الأمر
+                  overflow: TextOverflow
+                      .ellipsis, // وضع نقاط (...) إذا كان النص أطول من المساحة
+                  style: getMediumStyle(
+                    color: ColorManager.error,
+                    fontsize: FontSize.s14.sp,
+                  ),
+                ),
               ),
             ),
           ],

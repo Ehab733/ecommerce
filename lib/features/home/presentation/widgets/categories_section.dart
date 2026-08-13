@@ -1,13 +1,11 @@
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/network/network_cubit.dart';
 import 'package:ecommerce/core/network/network_state.dart';
-import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/core/utils/ui_utils.dart';
-import 'package:ecommerce/core/widgets/error_indicator.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:ecommerce/features/home/presentation/manager/home_cubit.dart';
 import 'package:ecommerce/features/home/presentation/manager/home_cubit_state.dart';
@@ -104,12 +102,23 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                   return state.maybeWhen(
                     getCategoriesLoading: () =>
                         const Center(child: LoadingIndicator()),
+
+                    // حل الـ Overflow عند الخطأ: عرض زر إعادة محاولة بسيط ومُصغّر يناسب ارتفاع الـ 95.h
                     getCategoriesFailure: (message) => Center(
                       child: Padding(
-                        padding: EdgeInsets.all(Insets.s16.sp),
-                        child: ErrorIndicator(errorMessage: message),
+                        padding: EdgeInsets.symmetric(horizontal: Insets.s16.w),
+                        child: Text(
+                          message,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: getMediumStyle(
+                            color: Colors.red,
+                            fontsize: FontSize.s12.sp,
+                          ),
+                        ),
                       ),
                     ),
+
                     getCategoriesSuccess: (categories) => ListView.separated(
                       scrollDirection: Axis.horizontal,
                       physics: const BouncingScrollPhysics(),
@@ -125,6 +134,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                           },
                           borderRadius: BorderRadius.circular(50.r),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
                                 width: 62.w,
@@ -144,18 +154,25 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                                               child: Icon(
                                                 Icons.category_outlined,
                                                 color: Colors.grey,
-                                                size: 24.sp,
+                                                size: 24.r,
                                               ),
                                             ),
                                   ),
                                 ),
                               ),
                               SizedBox(height: Sizes.s4.h),
-                              Text(
-                                category.name,
-                                style: getMediumStyle(
-                                  color: const Color(0xFF212121),
-                                  fontsize: FontSize.s11.sp,
+                              // حماية النص من الـ Overflow في حال كان واسعاً أو الخط كبيراً
+                              SizedBox(
+                                width: 65.w,
+                                child: Text(
+                                  category.name,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: getMediumStyle(
+                                    color: const Color(0xFF212121),
+                                    fontsize: FontSize.s11.sp,
+                                  ),
                                 ),
                               ),
                             ],
@@ -208,7 +225,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
               ),
             ),
             SizedBox(width: 4.w),
-            Icon(icon, size: 14.sp, color: Colors.black),
+            Icon(icon, size: 14.r, color: Colors.black),
           ],
         ),
       ),

@@ -4,14 +4,12 @@ import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
-import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/features/product/domain/entities/product.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
 class ProductCard extends StatelessWidget {
@@ -149,7 +147,9 @@ class ProductCard extends StatelessWidget {
                     Row(
                       children: [
                         Visibility(
-                          visible: _product.priceAfterDiscount != null,
+                          visible:
+                              _product.priceAfterDiscount != null &&
+                              _product.priceAfterDiscount != 0.0,
                           child: Text(
                             "EGP ${_product.priceAfterDiscount}",
                             style: getBoldStyle(color: ColorManager.primary),
@@ -157,7 +157,9 @@ class ProductCard extends StatelessWidget {
                         ),
                         Text(
                           "EGP ${_product.price}",
-                          style: _product.priceAfterDiscount != null
+                          style:
+                              _product.priceAfterDiscount != null &&
+                                  _product.priceAfterDiscount != 0.0
                               ? getTextWithLine()
                               : getBoldStyle(color: ColorManager.primary),
                         ),
