@@ -6,7 +6,7 @@ class Product {
   final String title;
   final String description;
   final int quantity;
-  final int price;
+  final double price;
   final int sold;
   final List<String> images;
   final int ratingsQuantity;

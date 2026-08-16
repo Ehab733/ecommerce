@@ -4,14 +4,13 @@ import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
-import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/features/product/domain/entities/product.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
 class ProductCard extends StatelessWidget {
   final Product _product;
@@ -26,7 +25,6 @@ class ProductCard extends StatelessWidget {
         bool isFavourite = wishlistCubit.favouriteProductIds.contains(
           _product.id,
         );
-
         return Container(
           decoration: BoxDecoration(
             color: ColorManager.white,
@@ -47,36 +45,32 @@ class ProductCard extends StatelessWidget {
               // 🖼️ 1. صورة المنتج
               Stack(
                 children: [
-                  GestureDetector(
-                    onTap: () =>
-                        context.push(Routes.productsDetails, extra: _product),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(10.r),
-                      ),
-                      child: CachedNetworkImage(
-                        imageUrl: _product.imageCover,
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(10.r),
+                    ),
+                    child: CachedNetworkImage(
+                      imageUrl: _product.imageCover,
+                      height: 125.h,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
                         height: 125.h,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          height: 125.h,
-                          color: ColorManager.grey,
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: ColorManager.primary,
-                            ),
+                        color: ColorManager.grey,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: ColorManager.primary,
                           ),
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          height: 125.h,
-                          color: Colors.grey.shade100,
-                          child: Icon(
-                            Icons.broken_image_rounded,
-                            color: ColorManager.lightGrey,
-                            size: Sizes.s28.sp,
-                          ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 125.h,
+                        color: Colors.grey.shade100,
+                        child: Icon(
+                          Icons.broken_image_rounded,
+                          color: ColorManager.lightGrey,
+                          size: Sizes.s28.sp,
                         ),
                       ),
                     ),
@@ -148,9 +142,26 @@ class ProductCard extends StatelessWidget {
                       maxLines: 1,
                     ),
                     SizedBox(height: 6.h),
-                    Text(
-                      "EGP ${_product.priceAfterDiscount ?? _product.price}",
-                      style: getBoldStyle(color: ColorManager.primary),
+                    Row(
+                      children: [
+                        Visibility(
+                          visible:
+                              _product.priceAfterDiscount != null &&
+                              _product.priceAfterDiscount != 0.0,
+                          child: Text(
+                            "EGP ${_product.priceAfterDiscount}",
+                            style: getBoldStyle(color: ColorManager.primary),
+                          ),
+                        ),
+                        Text(
+                          "EGP ${_product.price}",
+                          style:
+                              _product.priceAfterDiscount != null &&
+                                  _product.priceAfterDiscount != 0.0
+                              ? getTextWithLine()
+                              : getBoldStyle(color: ColorManager.primary),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 8.h),
                     Row(

@@ -1,4 +1,4 @@
-import 'package:ecommerce/core/app_bloc_observer.dart';
+import 'package:ecommerce/core/helpers/app_bloc_observer.dart';
 import 'package:ecommerce/core/di/get_it.dart';
 import 'package:ecommerce/core/network/network_cubit.dart';
 import 'package:ecommerce/core/routes/app_router.dart';
@@ -14,15 +14,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await _initDefered();
-  FlutterNativeSplash.remove();
-  runApp(const EcommerceApp());
-}
-
-Future<void> _initDefered() async {
   Bloc.observer = AppBlocObserver();
   await configureDependencies();
   await ScreenUtil.ensureScreenSize();
+  FlutterNativeSplash.remove();
+  runApp(const EcommerceApp());
 }
 
 class EcommerceApp extends StatelessWidget {

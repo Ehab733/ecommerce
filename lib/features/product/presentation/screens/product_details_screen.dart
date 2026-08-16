@@ -110,9 +110,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   // 📝 بيانات اسم المنتج والسعر
                   ProductHeaderInfo(
                     title: widget._product.title,
-                    price: widget._product.price.toString(),
-                    priceAfterDiscount: widget._product.priceAfterDiscount
-                        ?.toString(),
+                    price: widget._product.price,
+                    priceAfterDiscount:
+                        widget._product.priceAfterDiscount ?? 0.0,
                   ),
                   SizedBox(height: 16.h),
 
@@ -174,6 +174,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 EasyLoading.show(
                   status: 'Adding to cart...',
                   dismissOnTap: false,
+                  maskType: EasyLoadingMaskType.black,
+                  options: EasyLoadingOptions(userInteractions: false),
                 );
                 try {
                   final cartCubit = context.read<CartCubit>();

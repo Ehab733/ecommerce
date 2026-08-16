@@ -5,6 +5,7 @@ import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
+import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/core/utils/ui_utils.dart';
 import 'package:ecommerce/core/widgets/custom_header.dart';
 import 'package:ecommerce/core/widgets/custom_search.dart';
@@ -17,6 +18,7 @@ import 'package:ecommerce/features/product/presentation/manager/product_state.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 
 class ProductScreen extends StatelessWidget {
@@ -95,15 +97,13 @@ class ProductScreen extends StatelessWidget {
                               _buildActionButton(
                                 label: 'Sort',
                                 icon: Icons.swap_vert_rounded,
-                                onTap: () {
-                                },
+                                onTap: () {},
                               ),
                               SizedBox(width: Sizes.s8.w),
                               _buildActionButton(
                                 label: 'Filter',
                                 icon: Icons.filter_alt_outlined,
-                                onTap: () {
-                                },
+                                onTap: () {},
                               ),
                             ],
                           ),
@@ -139,9 +139,6 @@ class ProductScreen extends StatelessWidget {
                         ),
                       ),
                       success: (products) {
-                        Logger().d("Products count: ${products.length}");
-
-                        // 📭 حالة عدم وجود منتجات داخل القائمة
                         if (products.isEmpty) {
                           return SliverFillRemaining(
                             hasScrollBody: false,
@@ -169,21 +166,27 @@ class ProductScreen extends StatelessWidget {
                           );
                         }
 
-                        // 🛍️ العرض الشبكي للمنتجات
                         return SliverGrid(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio:
-                                0.75, // نسبة تناسب مثالية لكارت التصميم (صورة + عنوان + وصف + سعر + تقييم)
-                            mainAxisSpacing: 16.h,
-                            crossAxisSpacing: 14.w,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.75,
+                                mainAxisSpacing: 16.h,
+                                crossAxisSpacing: 14.w,
+                              ),
+                          delegate: SliverChildBuilderDelegate(
+                            (_, index) => InkWell(
+                              onTap: () {
+                                Logger().d(products[index].title);
+                                context.push(
+                                  Routes.productsDetails,
+                                  extra: products[index],
+                                );
+                              },
+                              child: ProductCard(product: products[index]),
+                            ),
+                            childCount: products.length,
                           ),
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            return ProductCard(product: products[index]);
-                          }, childCount: products.length),
                         );
                       },
                       orElse: () =>

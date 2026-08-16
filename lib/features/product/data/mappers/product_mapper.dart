@@ -15,5 +15,6 @@ extension ProductMapper on ProductModel {
     category: category,
     brand: brand,
     ratingsAverage: ratingsAverage,
+    priceAfterDiscount: priceAfterDiscount,
   );
 }
