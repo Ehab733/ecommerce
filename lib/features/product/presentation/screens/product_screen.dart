@@ -139,9 +139,6 @@ class ProductScreen extends StatelessWidget {
                         ),
                       ),
                       success: (products) {
-                        Logger().d("Products count: ${products.length}");
-
-                        // 📭 حالة عدم وجود منتجات داخل القائمة
                         if (products.isEmpty) {
                           return SliverFillRemaining(
                             hasScrollBody: false,
@@ -169,21 +166,23 @@ class ProductScreen extends StatelessWidget {
                           );
                         }
 
-                        // 🛍️ العرض الشبكي للمنتجات
                         return SliverGrid(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio:
-                                0.75, // نسبة تناسب مثالية لكارت التصميم (صورة + عنوان + وصف + سعر + تقييم)
-                            mainAxisSpacing: 16.h,
-                            crossAxisSpacing: 14.w,
-                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 0.75,
+                                mainAxisSpacing: 16.h,
+                                crossAxisSpacing: 14.w,
+                              ),
                           delegate: SliverChildBuilderDelegate(
                             (_, index) => InkWell(
-                              onTap: () => context.push(
-                                Routes.productsDetails,
-                                extra: products[index],
-                              ),
+                              onTap: () {
+                                Logger().d(products[index].title);
+                                context.push(
+                                  Routes.productsDetails,
+                                  extra: products[index],
+                                );
+                              },
                               child: ProductCard(product: products[index]),
                             ),
                             childCount: products.length,

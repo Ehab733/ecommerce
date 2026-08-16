@@ -111,7 +111,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   ProductHeaderInfo(
                     title: widget._product.title,
                     price: widget._product.price,
-                    priceAfterDiscount: widget._product.priceAfterDiscount!,
+                    priceAfterDiscount:
+                        widget._product.priceAfterDiscount ?? 0.0,
                   ),
                   SizedBox(height: 16.h),
 
@@ -173,6 +174,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 EasyLoading.show(
                   status: 'Adding to cart...',
                   dismissOnTap: false,
+                  maskType: EasyLoadingMaskType.black,
+                  options: EasyLoadingOptions(userInteractions: false),
                 );
                 try {
                   final cartCubit = context.read<CartCubit>();

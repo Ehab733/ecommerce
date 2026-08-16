@@ -25,8 +25,6 @@ class ProductCard extends StatelessWidget {
         bool isFavourite = wishlistCubit.favouriteProductIds.contains(
           _product.id,
         );
-        Logger().f(_product.title);
-
         return Container(
           decoration: BoxDecoration(
             color: ColorManager.white,

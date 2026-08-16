@@ -42,7 +42,7 @@ abstract class AppRouter {
       ),
       GoRoute(
         path: Routes.verifyCodeResetPassword,
-        builder: (context, state) { 
+        builder: (context, state) {
           final email = state.extra as String;
           return VerificationScreen(email: email);
         },
@@ -52,7 +52,8 @@ abstract class AppRouter {
         builder: (context, state) {
           final email = state.extra as String;
           return CreateNewPasswordScreen(email: email);
-        },),
+        },
+      ),
       GoRoute(
         path: Routes.getStartd,
         builder: (context, state) => const GetStartedScreen(),
