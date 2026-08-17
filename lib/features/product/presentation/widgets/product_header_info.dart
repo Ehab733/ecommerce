@@ -48,7 +48,7 @@ class ProductHeaderInfo extends StatelessWidget {
             SizedBox(height: 8.w),
             Text(
               "EGP ${price.toString()}",
-              style: priceAfterDiscount == null && priceAfterDiscount! > 0
+              style: priceAfterDiscount == null || priceAfterDiscount! == 0
                   ? getMediumStyle(
                       color: ColorManager.primary,
                       fontsize: FontSize.s18,

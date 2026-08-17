@@ -146,7 +146,7 @@ class CartItemCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "EGP ${(cartItemData.count * cartItemData.price)}",
+                        "EGP ${(cartItemData.count * getPrice())}",
                         style: getBoldStyle(
                           color: ColorManager.primary,
                           fontsize: FontSize.s16,
@@ -212,5 +212,13 @@ class CartItemCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  double getPrice() {
+    if (cartItemData.priceAfterDiscount == null ||
+        cartItemData.priceAfterDiscount == 0) {
+      return cartItemData.price;
+    }
+    return cartItemData.priceAfterDiscount!;
   }
 }

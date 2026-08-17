@@ -4,6 +4,7 @@ class CartItemData {
   final int count;
   final String id;
   final double price;
+  final double? priceAfterDiscount;
   final CartProduct product;
 
   const CartItemData({
@@ -11,5 +12,6 @@ class CartItemData {
     required this.id,
     required this.product,
     required this.price,
+    this.priceAfterDiscount,
   });
 }

@@ -162,8 +162,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         bottomNavigationBar: BlocBuilder<ProductCubit, GetProductState>(
           builder: (context, state) {
             final currentQuantity = context.read<ProductCubit>().quantity;
-            final num unitPrice =
-                widget._product.priceAfterDiscount ?? widget._product.price;
+            final num unitPrice;
+            if (widget._product.priceAfterDiscount == 0) {
+              unitPrice = widget._product.price;
+            } else {
+              unitPrice =
+                  widget._product.priceAfterDiscount ?? widget._product.price;
+            }
             final num totalAmount = unitPrice * currentQuantity;
 
             return BottomBar(
