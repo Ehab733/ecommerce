@@ -7,84 +7,120 @@ import 'package:ecommerce/features/home/domain/entities/category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logger/web.dart';
 
-class CategoryItem extends StatelessWidget {
+class CategoryItem extends StatefulWidget {
   final Category _category;
-  const CategoryItem({super.key, required this._category});
+
+  const CategoryItem({super.key, required category}) : _category = category;
+
+  @override
+  State<CategoryItem> createState() => _CategoryItemState();
+}
+
+class _CategoryItemState extends State<CategoryItem> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
       onTap: () {
-        context.push(Routes.products, extra: _category);
-        Logger().d(_category);
+        context.push(Routes.products, extra: widget._category);
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // 1. الدائرة المحسنة مع إطار وظل جذاب
-          Container(
-            height: 80.h,
-            width: 80.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: ColorManager.white,
-              border: Border.all(
-                color: ColorManager.primary.withAlpha(50),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: ColorManager.black.withAlpha(25),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: ClipOval(
-              child: Image.network(
-                _category.image,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.category_outlined,
-                  color: ColorManager.primary,
-                  size: 32.sp,
-                ),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: SizedBox(
-                      width: Sizes.s20.w,
-                      height: Sizes.s20.h,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: ColorManager.primary,
-                      ),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.94 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Insets.s2.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 1️⃣ إطار الصورة العصري بنمط Squircle متدرج وفاخر
+              Container(
+                height: 76.h,
+                width: 76.w,
+                padding: EdgeInsets.all(Insets.s2.w),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ColorManager.primary.withValues(alpha: 0.35),
+                      ColorManager.primary.withValues(alpha: 0.04),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(Sizes.s20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ColorManager.primary.withValues(alpha: 0.1),
+                      blurRadius: 14,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 6),
                     ),
-                  );
-                },
+                  ],
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ColorManager.white,
+                    borderRadius: BorderRadius.circular(Sizes.s20.r),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(Sizes.s20.r),
+                    child: Image.network(
+                      widget._category.image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: ColorManager.primary.withValues(alpha: 0.05),
+                        child: Icon(
+                          Icons.category_rounded,
+                          color: ColorManager.primary,
+                          size: 26.sp,
+                        ),
+                      ),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: ColorManager.lightGrey.withValues(alpha: 0.2),
+                          child: Center(
+                            child: SizedBox(
+                              width: Sizes.s16.w,
+                              height: Sizes.s16.h,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.w,
+                                color: ColorManager.primary,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(height: Sizes.s4.h),
 
-          // 2. اسم التصنيف بتنسيق نظيف لمنع حدوث قطع أو Overflow
-          SizedBox(
-            width: 85.w,
-            child: Text(
-              _category.name,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: getMediumStyle(
-                color: ColorManager.primary,
-                fontsize: FontSize.s12.sp,
+              SizedBox(height: Sizes.s8.h),
+
+              // 2️⃣ اسم التصنيف الأنيق
+              SizedBox(
+                width: 82.w,
+                child: Text(
+                  widget._category.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: getSemiBoldStyle(
+                    color: ColorManager.textPrimary,
+                    fontsize: FontSize.s12.sp,
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

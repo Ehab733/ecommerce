@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,22 +39,31 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
 
   @override
   Widget build(BuildContext context) {
-    const darkBlueColor = Color(0xFF003F6F);
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        // 1️⃣ حاوية الصور مع إمكانية التمرير Afik
-        Container(
-          height: 280.h,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F7),
-            borderRadius: BorderRadius.circular(16.r),
+    return Container(
+      height: 320.h,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAF9FF), // خلفية ناعمة وفاخرة
+        borderRadius: BorderRadius.circular(Sizes.s24.r),
+        border: Border.all(
+          color: ColorManager.primary.withValues(alpha: 0.08),
+          width: 1.w,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.r),
-            child: PageView.builder(
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(Sizes.s24.r),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 1️⃣ عرض الصور مع التمرير الأفقي
+            PageView.builder(
               controller: _pageController,
               itemCount: widget.images.isEmpty ? 1 : widget.images.length,
               onPageChanged: (index) {
@@ -60,27 +71,28 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
               },
               itemBuilder: (context, index) {
                 if (widget.images.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Icon(
-                      Icons.image_not_supported,
-                      size: 48,
-                      color: Colors.grey,
+                      Icons.image_not_supported_rounded,
+                      size: Sizes.s40.r,
+                      color: ColorManager.grey,
                     ),
                   );
                 }
                 return Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: Image.network(
-                    widget.images[index],
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: LoadingIndicator());
-                    },
-                    errorBuilder: (_, _, _) => Center(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Insets.s24.w,
+                    vertical: Insets.s20.h,
+                  ),
+                  child: CachedNetworkImage(
+                    imageUrl: widget.images[index],
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) =>
+                        const Center(child: LoadingIndicator()),
+                    errorWidget: (context, url, error) => Center(
                       child: Icon(
                         Icons.broken_image_rounded,
-                        size: 40,
+                        size: Sizes.s40.r,
                         color: ColorManager.grey,
                       ),
                     ),
@@ -88,63 +100,97 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
                 );
               },
             ),
-          ),
-        ),
 
-        // 2️⃣ زر إضافة/حذف من المفضلة (Favorite Button)
-        Positioned(
-          top: 16.h,
-          right: 16.w,
-          child: GestureDetector(
-            onTap: widget.onFavoriteTap,
-            child: Container(
-              height: 36.r,
-              width: 36.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: ColorManager.black.withAlpha(200),
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
+            // 2️⃣ زر المفضلة (Favorite Button) بتصميم عصري عائم
+            Positioned(
+              top: Insets.s16.h,
+              right: Insets.s16.w,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: widget.onFavoriteTap,
+                  borderRadius: BorderRadius.circular(Sizes.s20.r),
+                  child: Container(
+                    height: Sizes.s40.r,
+                    width: Sizes.s40.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: ColorManager.white,
+                      border: Border.all(
+                        color: ColorManager.primary.withValues(alpha: 0.1),
+                        width: 1.w,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ColorManager.black.withValues(alpha: 0.08),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        widget.isFavorite
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        size: Sizes.s20.r,
+                        color: ColorManager.primary,
+                      ),
+                    ),
                   ),
-                ],
-              ),
-              child: Icon(
-                widget.isFavorite ? Icons.favorite : Icons.favorite_border,
-                size: 20.r,
-                color: ColorManager.primary,
+                ),
               ),
             ),
-          ),
-        ),
 
-        // 3️⃣ مؤشر الصفحات السلس (Animated Page Indicators)
-        Positioned(
-          bottom: 16.h,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              widget.images.isEmpty ? 1 : widget.images.length,
-              (index) {
-                final bool isActive = index == _currentIndex;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: EdgeInsets.symmetric(horizontal: 3.w),
-                  width: isActive ? 24.w : 6.r,
-                  height: 6.r,
+            // 3️⃣ مؤشر الصفحات السلس والمضيء (Animated Page Indicators)
+            if (widget.images.length > 1)
+              Positioned(
+                bottom: Insets.s16.h,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Insets.s10.w,
+                    vertical: Insets.s6.h,
+                  ),
                   decoration: BoxDecoration(
-                    color: isActive ? darkBlueColor : Colors.white,
-                    border: Border.all(color: darkBlueColor, width: 1.r),
-                    borderRadius: BorderRadius.circular(3.r),
+                    color: ColorManager.white.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(Sizes.s16.r),
+                    border: Border.all(
+                      color: ColorManager.primary.withValues(alpha: 0.08),
+                      width: 1.w,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.black.withValues(alpha: 0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
-          ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(widget.images.length, (index) {
+                      final bool isActive = index == _currentIndex;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        margin: EdgeInsets.symmetric(horizontal: Insets.s4.w),
+                        width: isActive ? Sizes.s20.w : Sizes.s8.r,
+                        height: Sizes.s8.r,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? ColorManager.primary
+                              : ColorManager.primary.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(Sizes.s4.r),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

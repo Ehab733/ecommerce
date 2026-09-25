@@ -51,7 +51,6 @@ class _WishlistTabState extends State<WishlistTab> {
             );
           },
         ),
-
         BlocListener<WishListCubit, WishListState>(
           listener: (context, state) {
             state.whenOrNull(
@@ -82,63 +81,114 @@ class _WishlistTabState extends State<WishlistTab> {
               hasScrollBody: false,
               child: Center(child: LoadingIndicator()),
             ),
-
             getWishListError: (message) => SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(Insets.s20.r),
                 child: ErrorIndicator(errorMessage: message),
               ),
             ),
-
             orElse: () {
               if (_wishlistCubit.items.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.favorite_border_rounded,
-                          size: Sizes.s60.sp,
-                          color: ColorManager.lightGrey,
-                        ),
-                        SizedBox(height: Sizes.s12.h),
-                        Text(
-                          'Your wishlist is empty',
-                          style: getBoldStyle(
-                            color: ColorManager.text,
-                            fontsize: FontSize.s18,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: Insets.s32.w),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // أيقونة الحالة الفارغة مصممة بإطار ناعم
+                          Container(
+                            padding: EdgeInsets.all(Insets.s24.r),
+                            decoration: BoxDecoration(
+                              color: ColorManager.primary.withValues(
+                                alpha: 0.04,
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: ColorManager.primary.withValues(
+                                  alpha: 0.08,
+                                ),
+                                width: 1.w,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.favorite_border_rounded,
+                              size: Sizes.s40.sp,
+                              color: ColorManager.primary.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: Sizes.s4.h),
-                        Text(
-                          'Looks like you haven\'t added anything yet',
-                          style: getRegularStyle(
-                            color: ColorManager.grey,
-                            fontsize: FontSize.s14,
+                          SizedBox(height: Insets.s20.h),
+                          Text(
+                            'Your wishlist is empty',
+                            style: getBoldStyle(
+                              color: ColorManager.textPrimary,
+                              fontsize: FontSize.s18.sp,
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: Insets.s8.h),
+                          Text(
+                            'Discover and save your favorite luxury items to view them later.',
+                            textAlign: TextAlign.center,
+                            style: getRegularStyle(
+                              color: ColorManager.grey,
+                              fontsize: FontSize.s13.sp,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               }
 
               return SliverPadding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
+                padding: EdgeInsets.symmetric(
+                  horizontal: Insets.s20.w,
+                  vertical: Insets.s16.h,
+                ),
+                sliver: SliverList.builder(
+                  itemCount: _wishlistCubit.items.length,
+                  itemBuilder: (context, index) {
                     final item = _wishlistCubit.items[index];
-                    return WishlistCard(
+                    return Dismissible(
                       key: ValueKey(item.id),
-                      item: item,
-                      onTap: () {
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        margin: EdgeInsets.only(bottom: Insets.s16.h),
+                        decoration: BoxDecoration(
+                          color: ColorManager.error.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(Sizes.s20.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ColorManager.error.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.only(right: Insets.s24.w),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          color: ColorManager.white,
+                          size: Sizes.s24.sp,
+                        ),
+                      ),
+                      onDismissed: (_) {
                         _wishlistCubit.deleteProductFromWishList(item.id);
                       },
+                      child: WishlistCard(
+                        item: item,
+                        onTap: () {
+                          _wishlistCubit.deleteProductFromWishList(item.id);
+                        },
+                      ),
                     );
-                  }, childCount: _wishlistCubit.items.length),
+                  },
                 ),
               );
             },

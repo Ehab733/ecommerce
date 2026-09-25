@@ -1,15 +1,17 @@
-import 'package:ecommerce/core/helpers/app_bloc_observer.dart';
+import 'package:ecommerce/core/contants/constants.dart';
 import 'package:ecommerce/core/di/get_it.dart';
+import 'package:ecommerce/core/helpers/app_bloc_observer.dart';
 import 'package:ecommerce/core/network/network_cubit.dart';
 import 'package:ecommerce/core/routes/app_router.dart';
+import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart';
+import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
 import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ecommerce/features/auth/presentation/manager/auth_cubit.dart';
-import 'package:ecommerce/features/cart/presentation/manager/cart_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +23,19 @@ Future<void> main() async {
   runApp(const EcommerceApp());
 }
 
-class EcommerceApp extends StatelessWidget {
+class EcommerceApp extends StatefulWidget {
   const EcommerceApp({super.key});
+
+  @override
+  State<EcommerceApp> createState() => _EcommerceAppState();
+}
+
+class _EcommerceAppState extends State<EcommerceApp> {
+  @override
+  void initState() {
+    SystemChrome.setSystemUIOverlayStyle(AppConstants.systemUiOverlayStyle);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

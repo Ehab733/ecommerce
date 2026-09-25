@@ -50,7 +50,7 @@ class ProductScreen extends StatelessWidget {
         },
         child: Scaffold(
           appBar: customHeader(title: category.name, leading: false),
-          backgroundColor: ColorManager.white,
+          backgroundColor: const Color(0xFFFAF9FF), // خلفية فاخرة وناعمة
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -58,14 +58,17 @@ class ProductScreen extends StatelessWidget {
               SliverAppBar(
                 pinned: true,
                 scrolledUnderElevation: 0.0,
-                surfaceTintColor: Colors.white,
-                toolbarHeight: 64.h,
-                backgroundColor: ColorManager.white,
-                title: customSearch(context),
+                surfaceTintColor: Colors.transparent,
+                toolbarHeight: 70.h,
+                backgroundColor: const Color(0xFFFAF9FF),
+                title: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Insets.s4.w),
+                  child: customSearch(),
+                ),
                 automaticallyImplyLeading: false,
               ),
 
-              // 📊 2. شريط عدد المنتجات وأزرار Sort & Filter (مطابق للصورة)
+              // 📊 2. شريط عدد المنتجات وأزرار Sort & Filter الفاخرة
               SliverToBoxAdapter(
                 child: BlocBuilder<ProductCubit, GetProductState>(
                   builder: (context, state) {
@@ -76,22 +79,22 @@ class ProductScreen extends StatelessWidget {
 
                     return Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: Insets.s16.w,
-                        vertical: Insets.s8.h,
+                        horizontal: Insets.s20.w,
+                        vertical: Insets.s10.h,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // عدد العناصر المصنفة
+                          // عدد العناصر المصنفة بوزن خطي أنيق
                           Text(
                             "$count+ Items",
                             style: getBoldStyle(
-                              color: Colors.black,
-                              fontsize: FontSize.s18.sp,
+                              color: ColorManager.textPrimary,
+                              fontsize: FontSize.s16.sp,
                             ),
                           ),
 
-                          // أزرار Sort & Filter
+                          // أزرار Sort & Filter العصرية
                           Row(
                             children: [
                               _buildActionButton(
@@ -99,7 +102,7 @@ class ProductScreen extends StatelessWidget {
                                 icon: Icons.swap_vert_rounded,
                                 onTap: () {},
                               ),
-                              SizedBox(width: Sizes.s8.w),
+                              SizedBox(width: Sizes.s12.w),
                               _buildActionButton(
                                 label: 'Filter',
                                 icon: Icons.filter_alt_outlined,
@@ -117,10 +120,10 @@ class ProductScreen extends StatelessWidget {
               // 📦 3. شبكة عرض المنتجات والحالات الخاصة
               SliverPadding(
                 padding: EdgeInsets.only(
-                  left: 16.w,
-                  right: 16.w,
-                  top: 8.h,
-                  bottom: MediaQuery.paddingOf(context).bottom + 20.h,
+                  left: Insets.s20.w,
+                  right: Insets.s20.w,
+                  top: Insets.s8.h,
+                  bottom: MediaQuery.paddingOf(context).bottom + Insets.s24.h,
                 ),
                 sliver: BlocBuilder<ProductCubit, GetProductState>(
                   builder: (context, state) {
@@ -146,18 +149,29 @@ class ProductScreen extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
-                                    Icons.inventory_2_outlined,
-                                    size: Sizes.s60.sp,
-                                    color: ColorManager.lightGrey,
+                                  Container(
+                                    padding: EdgeInsets.all(Insets.s20.r),
+                                    decoration: BoxDecoration(
+                                      color: ColorManager.primary.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.inventory_2_outlined,
+                                      size: Sizes.s40.sp,
+                                      color: ColorManager.primary.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
                                   ),
-                                  SizedBox(height: Sizes.s12.h),
+                                  SizedBox(height: Sizes.s14.h),
                                   Text(
                                     'No products available for this category',
                                     textAlign: TextAlign.center,
                                     style: getMediumStyle(
                                       color: ColorManager.grey,
-                                      fontsize: FontSize.s14.sp,
+                                      fontsize: FontSize.s13.sp,
                                     ),
                                   ),
                                 ],
@@ -170,12 +184,13 @@ class ProductScreen extends StatelessWidget {
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
-                                childAspectRatio: 0.75,
-                                mainAxisSpacing: 16.h,
-                                crossAxisSpacing: 14.w,
+                                childAspectRatio: 0.72,
+                                mainAxisSpacing: Insets.s16.h,
+                                crossAxisSpacing: Insets.s14.w,
                               ),
                           delegate: SliverChildBuilderDelegate(
                             (_, index) => InkWell(
+                              borderRadius: BorderRadius.circular(Sizes.s20.r),
                               onTap: () {
                                 Logger().d(products[index].title);
                                 context.push(
@@ -202,43 +217,50 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  // 🛠️ ودجت أنيقة لمظهر أزرار Sort و Filter
+  // 🛠️ ودجت أنيقة ومحدثة لأزرار Sort و Filter بتصميم Minimal Luxury
   static Widget _buildActionButton({
     required String label,
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(Sizes.s4.r),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: Insets.s8.w,
-          vertical: Insets.s4.h,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(Sizes.s4.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(12),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Sizes.s14.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.s12.w,
+            vertical: Insets.s8.h,
+          ),
+          decoration: BoxDecoration(
+            color: ColorManager.white,
+            borderRadius: BorderRadius.circular(Sizes.s14.r),
+            border: Border.all(
+              color: ColorManager.primary.withValues(alpha: 0.1),
+              width: 1.w,
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: getRegularStyle(
-                color: Colors.black,
-                fontsize: FontSize.s12.sp,
+            boxShadow: [
+              BoxShadow(
+                color: ColorManager.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
-            ),
-            SizedBox(width: 4.w),
-            Icon(icon, size: 14.sp, color: Colors.black),
-          ],
+            ],
+          ),
+          child: Row(
+            children: [
+              Text(
+                label,
+                style: getBoldStyle(
+                  color: ColorManager.textPrimary,
+                  fontsize: FontSize.s12.sp,
+                ),
+              ),
+              SizedBox(width: Insets.s6.w),
+              Icon(icon, size: Sizes.s14.sp, color: ColorManager.primary),
+            ],
+          ),
         ),
       ),
     );

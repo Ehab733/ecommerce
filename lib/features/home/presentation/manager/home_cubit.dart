@@ -10,6 +10,7 @@ class HomeCubit extends Cubit<HomeCubitState> {
     : super(const HomeCubitState.homeCubitInitial());
 
   Future<void> getCategories() async {
+    if (isClosed) return;
     emit(const HomeCubitState.getCategoriesLoading());
     final result = await _categoryUsecase();
     result.fold(

@@ -25,63 +25,99 @@ class ProductRatingAndQuantity extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // 1️⃣ شارة عدد القطع المباعة (Sold Badge)
+        // 1️⃣ شارة عدد القطع المباعة (Sold Badge) بتصميم نظيف
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.s12.w,
+            vertical: Insets.s6.h,
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: ColorManager.darkBlue.withAlpha(50)),
+            color: ColorManager.primary.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(Sizes.s16.r),
+            border: Border.all(
+              color: ColorManager.primary.withValues(alpha: 0.1),
+              width: 1.w,
+            ),
           ),
           child: Text(
             '$soldCount Sold',
-            style: getMediumStyle(
-              color: ColorManager.text,
-              fontsize: FontSize.s14,
+            style: getBoldStyle(
+              color: ColorManager.textPrimary,
+              fontsize: FontSize.s12.sp,
             ),
           ),
         ),
-        SizedBox(width: 12.w),
+        SizedBox(width: Insets.s12.w),
 
-        // 2️⃣ التقييم
-        Row(
-          children: [
-            Icon(Icons.star, color: ColorManager.starRate, size: 18.r),
-            SizedBox(width: 4.w),
-            Text(
-              rating,
-              style: getRegularStyle(
-                color: ColorManager.text,
-                fontsize: FontSize.s14,
-              ),
-            ),
-          ],
-        ),
-
-        const Spacer(),
-
-        // 3️⃣ كبسولة تعديل الكمية (Quantity Stepper)
+        // 2️⃣ التقييم المضيء والفاخر
         Container(
-          height: 36.h,
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.s10.w,
+            vertical: Insets.s6.h,
+          ),
           decoration: BoxDecoration(
-            color: ColorManager.primary,
-            borderRadius: BorderRadius.circular(20.r),
+            color: ColorManager.starRate.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(Sizes.s16.r),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildStepperButton(icon: Icons.remove, onTap: onDecrement),
+              Icon(
+                Icons.star_rounded,
+                color: ColorManager.starRate,
+                size: Sizes.s16.r,
+              ),
+              SizedBox(width: Insets.s4.w),
+              Text(
+                rating,
+                style: getBoldStyle(
+                  color: ColorManager.textPrimary,
+                  fontsize: FontSize.s12.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const Spacer(),
+
+        // 3️⃣ كبسولة تعديل الكمية (Quantity Stepper) بستايل Minimal Luxury
+        Container(
+          height: Sizes.s32.h,
+          padding: EdgeInsets.symmetric(horizontal: Insets.s6.w),
+          decoration: BoxDecoration(
+            color: ColorManager.white,
+            borderRadius: BorderRadius.circular(Sizes.s20.r),
+            border: Border.all(
+              color: ColorManager.primary.withValues(alpha: 0.15),
+              width: 1.w,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: ColorManager.primary.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildStepperButton(
+                icon: Icons.remove_rounded,
+                onTap: onDecrement,
+              ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                padding: EdgeInsets.symmetric(horizontal: Insets.s10.w),
                 child: Text(
                   '$quantity',
-                  style: getRegularStyle(
-                    color: ColorManager.white,
-                    fontsize: FontSize.s18,
+                  style: getBoldStyle(
+                    color: ColorManager.textPrimary,
+                    fontsize: FontSize.s14.sp,
                   ),
                 ),
               ),
-              _buildStepperButton(icon: Icons.add, onTap: onIncrement),
+              _buildStepperButton(icon: Icons.add_rounded, onTap: onIncrement),
             ],
           ),
         ),
@@ -89,17 +125,24 @@ class ProductRatingAndQuantity extends StatelessWidget {
     );
   }
 
-  // Helper method لإعادة استخدام أزرار الـ + والـ - بتنسيق موحد
+  // 🛠️ Helper Method لإعادة استخدام أزرار الـ + والـ - بشكل أنيق
   Widget _buildStepperButton({
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
-      child: Padding(
-        padding: EdgeInsets.all(4.r),
-        child: Icon(icon, color: ColorManager.white, size: Sizes.s18.r),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(Sizes.s14.r),
+        child: Container(
+          padding: EdgeInsets.all(Insets.s6.r),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: ColorManager.primary.withValues(alpha: 0.06),
+          ),
+          child: Icon(icon, color: ColorManager.primary, size: Sizes.s14.r),
+        ),
       ),
     );
   }

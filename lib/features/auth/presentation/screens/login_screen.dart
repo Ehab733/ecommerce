@@ -1,3 +1,4 @@
+import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
@@ -22,257 +23,372 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // الألوان المستخرجة من تصميم الواجهة الجديدة
-    const Color primaryRed = Color(0xFFF03E51);
-    const Color textGrey = Color(0xFF575757);
-    const Color hintGrey = Color(0xFF676767);
-    const Color socialBorderColor = Color(0xFFF03E51);
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: Insets.s24.w),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: Sizes.s40.h),
-
-                // 1️⃣ عنوان "Welcome Back!" العريض والكبير
-                Text(
-                  'Welcome\nBack!',
-                  style: getBoldStyle(
-                    color: Colors.black,
-                    fontsize: FontSize.s32,
-                  ).copyWith(height: 1.2),
-                ),
-
-                SizedBox(height: Sizes.s32.h),
-
-                // 2️⃣ حقل اسم المستخدم / البريد الإلكتروني
-                TextFormFieldEdit(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  label: 'Email Address',
-                  prefixIcon: true,
-                  icon: const Icon(
-                    Icons.person_outline_rounded,
-                    color: hintGrey,
+      backgroundColor: const Color(0xFFFAF9FF),
+      body: Stack(
+        children: [
+          // 🎨 1. خلفية متدرجة بلمسة ناعمة وتوهج زجاجي أعلى الشاشة
+          Positioned(
+            top: -100.h,
+            right: -60.w,
+            child: Container(
+              width: 260.w,
+              height: 260.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: ColorManager.primary.withValues(alpha: 0.08),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorManager.primary.withValues(alpha: 0.12),
+                    blurRadius: 80,
+                    spreadRadius: 20,
                   ),
-                  validator: (val) => Validator.validateEmail(val),
-                ),
-
-                SizedBox(height: Sizes.s20.h),
-
-                // 3️⃣ حقل كلمة المرور
-                TextFormFieldEdit(
-                  isPassword: true,
-                  controller: _passwordController,
-                  keyboardType: TextInputType.visiblePassword,
-                  label: 'Password',
-                  prefixIcon: true,
-                  icon: const Icon(Icons.lock_outline_rounded, color: hintGrey),
-                  validator: (val) => Validator.validatePassword(val),
-                ),
-
-                SizedBox(height: Sizes.s12.h),
-
-                // 4️⃣ رابط "Forgot Password?" باللون الأحمر الجانب الأيمن
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () {
-                      context.push(Routes.forgetPassword);
-                    },
-                    child: Text(
-                      'Forgot Password?',
-                      style: getRegularStyle(
-                        color: primaryRed,
-                        fontsize: FontSize.s12,
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: Sizes.s32.h),
-
-                // 5️⃣ زر تسجيل الدخول (Login Button)
-                BlocListener<AuthCubit, AuthState>(
-                  listener: (context, state) {
-                    state.whenOrNull(
-                      loginLoading: () => EasyLoading.show(
-                        dismissOnTap: false,
-                        options: EasyLoadingOptions(userInteractions: false),
-                      ),
-                      loginSuccess: () async {
-                        await EasyLoading.dismiss();
-                        if (context.mounted) {
-                          context.go(Routes.getStartd);
-                        }
-                      },
-                      loginError: (messageError) async {
-                        await EasyLoading.dismiss();
-                        if (context.mounted) {
-                          UiUtils.showMessage(
-                            context,
-                            messageError,
-                            isError: true,
-                          );
-                        }
-                      },
-                    );
-                  },
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 55.h,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryRed,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Sizes.s12.r),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthCubit>().login(
-                            LoginRequest(
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text,
-                            ),
-                          );
-                        }
-                      },
-                      child: Text(
-                        'Login',
-                        style: getBoldStyle(
-                          color: Colors.white,
-                          fontsize: FontSize.s20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: Sizes.s40.h),
-
-                // 6️⃣ فاصل "- OR Continue with -"
-                Center(
-                  child: Text(
-                    '- OR Continue with -',
-                    style: getMediumStyle(
-                      color: textGrey,
-                      fontsize: FontSize.s12,
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: Sizes.s24.h),
-
-                // 7️⃣ أزرار السوشيال ميديا (Google, Apple, Facebook)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSocialButton(
-                      borderColor: socialBorderColor,
-                      child: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                        width: 24.w,
-                        height: 24.h,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(
-                              Icons.g_mobiledata,
-                              color: Colors.red,
-                              size: 28,
-                            ),
-                      ),
-                      onTap: () {},
-                    ),
-                    SizedBox(width: Sizes.s16.w),
-                    _buildSocialButton(
-                      borderColor: socialBorderColor,
-                      child: Icon(
-                        Icons.apple,
-                        size: 28.sp,
-                        color: Colors.black,
-                      ),
-                      onTap: () {},
-                    ),
-                    SizedBox(width: Sizes.s16.w),
-                    _buildSocialButton(
-                      borderColor: socialBorderColor,
-                      child: Icon(
-                        Icons.facebook,
-                        size: 28.sp,
-                        color: const Color(0xFF1877F2),
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: Sizes.s32.h),
-
-                // 8️⃣ رابط إنشاء حساب جديد "Create An Account Sign Up"
-                Center(
-                  child: GestureDetector(
-                    onTap: () => context.go(Routes.register),
-                    child: RichText(
-                      text: TextSpan(
-                        text: "Create An Account ",
-                        style: getRegularStyle(
-                          color: textGrey,
-                          fontsize: FontSize.s14,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'Sign Up',
-                            style: getBoldStyle(
-                              color: primaryRed,
-                              fontsize: FontSize.s14,
-                            ).copyWith(decoration: TextDecoration.underline),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: Sizes.s20.h),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+
+          // 2. المحتوى الرئيسي
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: Insets.s24.w),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: Sizes.s32.h),
+
+                    // 1️⃣ عنوان الصفحة بستايل فاخر
+                    Row(
+                      children: [
+                        Text(
+                          'Welcome\nBack!',
+                          style: getBoldStyle(
+                            color: ColorManager.textPrimary,
+                            fontsize: FontSize.s32.sp,
+                          ).copyWith(height: 1.15, letterSpacing: -0.5),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: EdgeInsets.all(Insets.s12.r),
+                          decoration: BoxDecoration(
+                            color: ColorManager.primary.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.auto_awesome_rounded,
+                            color: ColorManager.primary,
+                            size: 28.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: Sizes.s8.h),
+
+                    Text(
+                      'Please sign in to continue your shopping journey.',
+                      style: getRegularStyle(
+                        color: ColorManager.textSecondary,
+                        fontsize: FontSize.s13.sp,
+                      ),
+                    ),
+
+                    SizedBox(height: Sizes.s32.h),
+
+                    // 2️⃣ حقل البريد الإلكتروني
+                    TextFormFieldEdit(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      label: 'Email Address',
+                      prefixIcon: true,
+                      icon: Icon(
+                        Icons.email_outlined,
+                        color: ColorManager.textSecondary,
+                        size: 20.sp,
+                      ),
+                      validator: (val) => Validator.validateEmail(val),
+                    ),
+
+                    SizedBox(height: Sizes.s18.h),
+
+                    // 3️⃣ حقل كلمة المرور
+                    TextFormFieldEdit(
+                      isPassword: true,
+                      controller: _passwordController,
+                      keyboardType: TextInputType.visiblePassword,
+                      label: 'Password',
+                      prefixIcon: true,
+                      icon: Icon(
+                        Icons.lock_outline_rounded,
+                        color: ColorManager.textSecondary,
+                        size: 20.sp,
+                      ),
+                      validator: (val) => Validator.validatePassword(val),
+                    ),
+
+                    SizedBox(height: Sizes.s12.h),
+
+                    // 4️⃣ رابط نسيت كلمة المرور
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(Sizes.s8.r),
+                        onTap: () {
+                          context.push(Routes.forgetPassword);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Insets.s4.w,
+                            vertical: Insets.s4.h,
+                          ),
+                          child: Text(
+                            'Forgot Password?',
+                            style: getSemiBoldStyle(
+                              color: ColorManager.primary,
+                              fontsize: FontSize.s12.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: Sizes.s28.h),
+
+                    // 5️⃣ زر تسجيل الدخول
+                    BlocListener<AuthCubit, AuthState>(
+                      listener: (context, state) {
+                        state.whenOrNull(
+                          loginLoading: () => EasyLoading.show(
+                            dismissOnTap: false,
+                            maskType: EasyLoadingMaskType.black,
+                          ),
+                          loginSuccess: () async {
+                            FocusScope.of(context).unfocus();
+                            await EasyLoading.dismiss();
+                            if (context.mounted) {
+                              context.go(Routes.getStartd);
+                            }
+                          },
+                          loginError: (messageError) async {
+                            await EasyLoading.dismiss();
+                            if (context.mounted) {
+                              UiUtils.showMessage(
+                                context,
+                                messageError,
+                                isError: true,
+                              );
+                            }
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 52.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(Sizes.s14.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ColorManager.primary.withValues(
+                                alpha: 0.28,
+                              ),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorManager.primary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Sizes.s14.r),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.read<AuthCubit>().login(
+                                LoginRequest(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text,
+                                ),
+                              );
+                            }
+                          },
+                          child: Text(
+                            'Login',
+                            style: getBoldStyle(
+                              color: ColorManager.white,
+                              fontsize: FontSize.s16.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: Sizes.s32.h),
+
+                    // 6️⃣ فاصل "- OR Continue with -"
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: ColorManager.lightGrey.withValues(
+                              alpha: 0.5,
+                            ),
+                            thickness: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Insets.s12.w,
+                          ),
+                          child: Text(
+                            'OR Continue with',
+                            style: getMediumStyle(
+                              color: ColorManager.textSecondary,
+                              fontsize: FontSize.s11.sp,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: ColorManager.lightGrey.withValues(
+                              alpha: 0.5,
+                            ),
+                            thickness: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: Sizes.s24.h),
+
+                    // 7️⃣ أزرار السوشيال ميديا
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSocialButton(
+                          child: Image.network(
+                            'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                            width: 22.w,
+                            height: 22.h,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              Icons.g_mobiledata,
+                              color: ColorManager.primary,
+                              size: 28.sp,
+                            ),
+                          ),
+                          onTap: () {},
+                        ),
+                        SizedBox(width: Sizes.s16.w),
+                        _buildSocialButton(
+                          child: Icon(
+                            Icons.apple,
+                            size: 24.sp,
+                            color: ColorManager.black,
+                          ),
+                          onTap: () {},
+                        ),
+                        SizedBox(width: Sizes.s16.w),
+                        _buildSocialButton(
+                          child: Icon(
+                            Icons.facebook,
+                            size: 24.sp,
+                            color: const Color(0xFF1877F2),
+                          ),
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: Sizes.s32.h),
+
+                    // 8️⃣ رابط إنشاء حساب جديد
+                    Center(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(Sizes.s8.r),
+                        onTap: () => context.go(Routes.register),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Insets.s12.w,
+                            vertical: Insets.s6.h,
+                          ),
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Create An Account? ",
+                              style: getRegularStyle(
+                                color: ColorManager.textSecondary,
+                                fontsize: FontSize.s13.sp,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: 'Sign Up',
+                                  style:
+                                      getBoldStyle(
+                                        color: ColorManager.primary,
+                                        fontsize: FontSize.s13.sp,
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: Sizes.s20.h),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // ودجت صغيرة لبناء أزرار السوشيال ميديا بشكل إحترافي
   Widget _buildSocialButton({
     required Widget child,
     required VoidCallback onTap,
-    required Color borderColor,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(100.r),
+      borderRadius: BorderRadius.circular(Sizes.s14.r),
       child: Container(
-        width: 54.w,
-        height: 54.h,
-        padding: EdgeInsets.all(Insets.s12.w),
+        width: 56.w,
+        height: 52.h,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: const Color(0xFFFCF3F4),
-          border: Border.all(color: borderColor.withAlpha(77), width: 1),
+          color: ColorManager.white,
+          borderRadius: BorderRadius.circular(Sizes.s14.r),
+          border: Border.all(
+            color: ColorManager.lightGrey.withValues(alpha: 0.4),
+            width: 1.w,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(child: child),
       ),

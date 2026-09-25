@@ -33,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Ehab Ahmed');
+    _nameController = TextEditingController(text: 'Ehab Elish');
     _emailController = TextEditingController(text: 'ehab@gmail.com');
     _passwordController = TextEditingController(text: 'Ehab123@');
     _phoneController = TextEditingController(text: '01212357118');
@@ -55,59 +55,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: Insets.s16.w,
-          vertical: Insets.s12.h,
+          horizontal: Insets.s20.w,
+          vertical: Insets.s16.h,
         ),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1️⃣ هيدر الملف الشخصي (Profile Avatar & Info Header)
+              // 1️⃣ هيدر الملف الشخصي (Profile Avatar & Info Header) بتصميم راقي
               _buildProfileHeader(),
-              SizedBox(height: Sizes.s24.h),
+              SizedBox(height: Insets.s24.h),
 
               // 2️⃣ حقول البيانات الشخصية (User Details Form)
               TextFormFieldEdit(
                 label: 'Your full name',
                 controller: _nameController,
                 prefixIcon: true,
-                icon: const Icon(Icons.person_outline_rounded),
+                icon: Icon(
+                  Icons.person_outline_rounded,
+                  color: ColorManager.primary,
+                ),
               ),
-              SizedBox(height: Sizes.s16.h),
+              SizedBox(height: Insets.s16.h),
 
               TextFormFieldEdit(
                 label: 'Your E-mail',
                 controller: _emailController,
                 prefixIcon: true,
-                icon: const Icon(Icons.email_outlined),
+                icon: Icon(Icons.email_outlined, color: ColorManager.primary),
               ),
-              SizedBox(height: Sizes.s16.h),
+              SizedBox(height: Insets.s16.h),
 
               TextFormFieldEdit(
                 label: 'Your password',
                 controller: _passwordController,
                 isPassword: true,
                 prefixIcon: true,
-                icon: const Icon(Icons.lock_outline_rounded),
+                icon: Icon(
+                  Icons.lock_outline_rounded,
+                  color: ColorManager.primary,
+                ),
               ),
-              SizedBox(height: Sizes.s16.h),
+              SizedBox(height: Insets.s16.h),
 
               TextFormFieldEdit(
                 label: 'Your mobile number',
                 controller: _phoneController,
                 prefixIcon: true,
-                icon: const Icon(Icons.phone_android_outlined),
+                icon: Icon(
+                  Icons.phone_android_outlined,
+                  color: ColorManager.primary,
+                ),
               ),
-              SizedBox(height: Sizes.s16.h),
+              SizedBox(height: Insets.s16.h),
 
               TextFormFieldEdit(
                 label: 'Your Address',
                 controller: _addressController,
                 prefixIcon: true,
-                icon: const Icon(Icons.location_on_outlined),
+                icon: Icon(
+                  Icons.location_on_outlined,
+                  color: ColorManager.primary,
+                ),
               ),
-              SizedBox(height: Sizes.s32.h),
+              SizedBox(height: Insets.s32.h),
 
               // 3️⃣ زر تسجيل الخروج (Logout Action)
               BlocListener<AuthCubit, AuthState>(
@@ -131,16 +143,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   );
                 },
-                child: ElevatedButtonEdit(
-                  title: 'Logout',
-                  onPressed: () {
-                    context.read<AuthCubit>().logout();
-                  },
-                  backgroundColor: ColorManager.error.withValues(alpha: 0.1),
-                  textColor: ColorManager.error,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Sizes.s16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.error.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButtonEdit(
+                    title: 'Logout',
+                    onPressed: () {
+                      context.read<AuthCubit>().logout();
+                    },
+                    backgroundColor: ColorManager.error.withValues(alpha: 0.08),
+                    textColor: ColorManager.error,
+                  ),
                 ),
               ),
-              SizedBox(height: Sizes.s20.h),
+              SizedBox(height: Insets.s32.h),
             ],
           ),
         ),
@@ -148,42 +172,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // 👤 ويدجيت هيدر المستخدم بصورة شخصية تفاعلية
+  // 👤 ويدجيت هيدر المستخدم بصورة شخصية تفاعلية بستايل Minimal Luxury
   Widget _buildProfileHeader() {
     return Container(
-      padding: EdgeInsets.all(Insets.s16.r),
+      padding: EdgeInsets.all(Insets.s20.r),
       decoration: BoxDecoration(
-        color: ColorManager.primary.withAlpha(10),
-        borderRadius: BorderRadius.circular(Sizes.s16.r),
+        color: ColorManager.white,
+        borderRadius: BorderRadius.circular(Sizes.s24.r),
         border: Border.all(
-          color: ColorManager.primary.withAlpha(25),
+          color: ColorManager.primary.withValues(alpha: 0.1),
           width: 1.w,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          // الصورة الشخصية مع زر التعديل
+          // الصورة الشخصية مع زر التعديل المضيء
           Stack(
             children: [
-              CircleAvatar(
-                radius: Sizes.s32.r,
-                backgroundColor: ColorManager.primary,
-                child: Text(
-                  'EA',
-                  style: getBoldStyle(
-                    color: ColorManager.white,
-                    fontsize: FontSize.s20,
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: ColorManager.primary.withValues(alpha: 0.2),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: Sizes.s32.r,
+                  backgroundColor: ColorManager.primary,
+                  child: Text(
+                    'EE',
+                    style: getBoldStyle(
+                      color: ColorManager.white,
+                      fontsize: FontSize.s20.sp,
+                    ),
                   ),
                 ),
               ),
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: CircleAvatar(
-                  radius: Sizes.s12.r,
-                  backgroundColor: ColorManager.white,
+                child: Container(
+                  padding: EdgeInsets.all(Insets.s4.r),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ColorManager.white,
+                    border: Border.all(
+                      color: ColorManager.primary.withValues(alpha: 0.2),
+                      width: 1.w,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.black.withValues(alpha: 0.08),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
                   child: Icon(
-                    Icons.edit,
+                    Icons.edit_rounded,
                     size: Sizes.s12.sp,
                     color: ColorManager.primary,
                   ),
@@ -191,28 +248,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          SizedBox(width: Sizes.s16.w),
+          SizedBox(width: Insets.s18.w),
 
-          // الاسم والبريد
+          // الاسم والبريد بتنسيق متناسق
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome, Ehab',
+                  'Welcome, Ehab Elish',
                   style: getBoldStyle(
-                    color: ColorManager.primary,
-                    fontsize: FontSize.s18,
+                    color: ColorManager.textPrimary,
+                    fontsize: FontSize.s16.sp,
                   ),
                 ),
-                SizedBox(height: Sizes.s4.h),
+                SizedBox(height: Insets.s4.h),
                 Text(
                   'ehab@gmail.com',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: getRegularStyle(
                     color: ColorManager.grey,
-                    fontsize: FontSize.s13,
+                    fontsize: FontSize.s13.sp,
                   ),
                 ),
               ],
