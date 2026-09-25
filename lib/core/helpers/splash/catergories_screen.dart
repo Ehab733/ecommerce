@@ -1,3 +1,4 @@
+import 'package:ecommerce/core/resources/assets_manager.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
@@ -62,169 +63,147 @@ class _CategoriesTabState extends State<CategoriesTab> {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 إرجاع Row مباشر مع Expanded لضمان ملء الشاشة بدون أخطاء Slivers
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ===============================================================
-        // 1️⃣ Left Side: Categories List (Scroll مستقل 100%)
-        // ===============================================================
-        Expanded(
-          flex: 3,
-          child: Container(
-            color: ColorManager.containerGray,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: Insets.s8.h),
-              physics: const BouncingScrollPhysics(),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                final isSelected = index == _selectedIndex;
-                return InkWell(
-                  onTap: () => setState(() => _selectedIndex = index),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    height: 56.h,
-                    color: isSelected ? ColorManager.white : Colors.transparent,
-                    child: Row(
-                      children: [
-                        // 📍 الشريط الجانبي الفعال (Selected Indicator Bar)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 6.w,
-                          height: double.infinity,
+    return Scaffold(
+      backgroundColor: ColorManager.white,
+      body: SafeArea(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ===============================================================
+            // 1️⃣ القائمة الجانبية للأقسام الرئيسية (Modern Minimal Sidebar)
+            // ===============================================================
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F7FC),
+                  border: Border(
+                    right: BorderSide(
+                      color: ColorManager.primary.withValues(alpha: 0.06),
+                      width: 1.w,
+                    ),
+                  ),
+                ),
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    vertical: Insets.s12.h,
+                    horizontal: Insets.s6.w,
+                  ),
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: _categories.length,
+                  itemBuilder: (context, index) {
+                    final isSelected = index == _selectedIndex;
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: Insets.s6.h),
+                      child: InkWell(
+                        onTap: () => setState(() => _selectedIndex = index),
+                        borderRadius: BorderRadius.circular(Sizes.s14.r),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          curve: Curves.easeInOut,
+                          padding: EdgeInsets.symmetric(
+                            vertical: Insets.s12.h,
+                            horizontal: Insets.s8.w,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? ColorManager.primary
+                                ? ColorManager.white
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(Sizes.s4.r),
-                              bottomRight: Radius.circular(Sizes.s4.r),
-                            ),
+                            borderRadius: BorderRadius.circular(Sizes.s14.r),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: ColorManager.primary.withValues(
+                                        alpha: 0.06,
+                                      ),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: Row(
+                            children: [
+                              // مؤشر شريطي جانبي بتصميم ناعم
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                width: 3.5.w,
+                                height: isSelected ? 20.h : 0.h,
+                                decoration: BoxDecoration(
+                                  color: ColorManager.primary,
+                                  borderRadius: BorderRadius.circular(
+                                    Sizes.s4.r,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: isSelected ? Sizes.s8.w : Sizes.s4.w,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  _categories[index].name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: isSelected
+                                      ? getBoldStyle(
+                                          color: ColorManager.primary,
+                                          fontsize: FontSize.s12.sp,
+                                        )
+                                      : getMediumStyle(
+                                          color: ColorManager.grey,
+                                          fontsize: FontSize.s11.sp,
+                                        ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(width: Sizes.s8.w),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(right: Insets.s4.w),
-                            child: Text(
-                              _categories[index].name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: isSelected
-                                  ? getBoldStyle(
-                                      color: ColorManager.primary,
-                                      fontsize: FontSize.s13,
-                                    )
-                                  : getMediumStyle(
-                                      color: ColorManager.grey,
-                                      fontsize: FontSize.s13,
-                                    ),
-                            ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            // ===============================================================
+            // 2️⃣ منطقة عرض المحتوى والأقسام الفرعية (Subcategories & Banner)
+            // ===============================================================
+            Expanded(
+              flex: 7,
+              child: Container(
+                color: ColorManager.white,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: SingleChildScrollView(
+                    key: ValueKey<int>(_selectedIndex),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Insets.s16.w,
+                      vertical: Insets.s16.h,
+                    ),
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // اسم القسم المحدد
+                        Text(
+                          _categories[_selectedIndex].name,
+                          style: getBoldStyle(
+                            color: ColorManager.textPrimary,
+                            fontsize: FontSize.s16.sp,
                           ),
+                        ),
+                        SizedBox(height: Insets.s12.h),
+
+                        // البنر الإعلاني العائم بتصميم فاخر
+                        _buildCategoryBanner(_categories[_selectedIndex].name),
+                        SizedBox(height: Insets.s20.h),
+
+                        // شبكة الأقسام الفرعية
+                        _buildSubcategoriesGrid(
+                          _categories[_selectedIndex].subcategories,
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-
-        // ===============================================================
-        // 2️⃣ Right Side: Subcategories Area (Scroll مستقل 100%)
-        // ===============================================================
-        Expanded(
-          flex: 7,
-          child: Container(
-            color: ColorManager.white,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: Insets.s12.w,
-                vertical: Insets.s8.h,
-              ),
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // عنوان القسم المختار
-                  Text(
-                    _categories[_selectedIndex].name,
-                    style: getBoldStyle(
-                      color: ColorManager.text,
-                      fontsize: FontSize.s16,
-                    ),
-                  ),
-                  SizedBox(height: Sizes.s12.h),
-
-                  // بنر التخفيضات الخاص بالقسم
-                  _buildCategoryBanner(_categories[_selectedIndex].name),
-                  SizedBox(height: Sizes.s16.h),
-
-                  // شبكة الأقسام الفرعية
-                  _buildSubcategoriesGrid(
-                    _categories[_selectedIndex].subcategories,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 🖼️ ويدجيت البنر الإعلاني
-  Widget _buildCategoryBanner(String categoryName) {
-    return Container(
-      height: 110.h,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Sizes.s12.r),
-        image: const DecorationImage(
-          image: AssetImage('assets/images/banner.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        padding: EdgeInsets.all(Insets.s12.r),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(Sizes.s12.r),
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [ColorManager.black.withValues(alpha: 0.4), Colors.transparent],
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              categoryName,
-              style: getBoldStyle(
-                color: ColorManager.white,
-                fontsize: FontSize.s14,
-              ),
-            ),
-            SizedBox(height: Sizes.s4.h),
-            SizedBox(
-              height: 28.h,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorManager.primary,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(horizontal: Insets.s12.w),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Sizes.s8.r),
-                  ),
-                ),
-                child: Text(
-                  'Shop Now',
-                  style: getMediumStyle(
-                    color: ColorManager.white,
-                    fontsize: FontSize.s11,
                   ),
                 ),
               ),
@@ -235,26 +214,126 @@ class _CategoriesTabState extends State<CategoriesTab> {
     );
   }
 
-  // 🔲 ويدجيت شبكة الأقسام الفرعية (Subcategories Grid)
+  // 🖼️ ويدجيت البنر الإعلاني
+  Widget _buildCategoryBanner(String categoryName) {
+    return Container(
+      height: 110.h,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Sizes.s16.r),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withValues(alpha: 0.1),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              ImageAssets.bannerImg,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: ColorManager.primary.withValues(alpha: 0.05),
+                child: Center(
+                  child: Icon(
+                    Icons.image_outlined,
+                    color: ColorManager.primary.withValues(alpha: 0.3),
+                    size: 28.sp,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              padding: EdgeInsets.all(Insets.s14.r),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
+                  colors: [
+                    ColorManager.black.withValues(alpha: 0.6),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    categoryName,
+                    style: getBoldStyle(
+                      color: ColorManager.white,
+                      fontsize: FontSize.s14.sp,
+                    ),
+                  ),
+                  SizedBox(height: Sizes.s8.h),
+                  SizedBox(
+                    height: 26.h,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorManager.primary,
+                        elevation: 0,
+                        padding: EdgeInsets.symmetric(horizontal: Insets.s12.w),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Sizes.s14.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Shop Now',
+                        style: getBoldStyle(
+                          color: ColorManager.white,
+                          fontsize: FontSize.s10.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔲 شبكة الأقسام الفرعية
   Widget _buildSubcategoriesGrid(List<SubcategoryModel> subcategories) {
     if (subcategories.isEmpty) {
       return Padding(
-        padding: EdgeInsets.only(top: 60.h),
+        padding: EdgeInsets.only(top: 40.h),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.category_outlined,
-                size: Sizes.s40.sp,
-                color: ColorManager.lightGrey,
+              Container(
+                padding: EdgeInsets.all(Insets.s16.r),
+                decoration: BoxDecoration(
+                  color: ColorManager.primary.withValues(alpha: 0.04),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: ColorManager.primary.withValues(alpha: 0.08),
+                    width: 1.w,
+                  ),
+                ),
+                child: Icon(
+                  Icons.grid_view_rounded,
+                  size: Sizes.s28.sp,
+                  color: ColorManager.primary.withValues(alpha: 0.4),
+                ),
               ),
-              SizedBox(height: Sizes.s8.h),
+              SizedBox(height: Sizes.s12.h),
               Text(
-                'No subcategories available',
-                style: getMediumStyle(
+                'No subcategories found',
+                style: getSemiBoldStyle(
                   color: ColorManager.grey,
-                  fontsize: FontSize.s13,
+                  fontsize: FontSize.s12.sp,
                 ),
               ),
             ],
@@ -269,7 +348,7 @@ class _CategoriesTabState extends State<CategoriesTab> {
       itemCount: subcategories.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        childAspectRatio: 0.72,
+        childAspectRatio: 0.76,
         crossAxisSpacing: Sizes.s12.w,
         mainAxisSpacing: Sizes.s12.h,
       ),
@@ -277,31 +356,42 @@ class _CategoriesTabState extends State<CategoriesTab> {
         final item = subcategories[index];
         return InkWell(
           onTap: () {},
-          borderRadius: BorderRadius.circular(Sizes.s12.r),
+          borderRadius: BorderRadius.circular(Sizes.s14.r),
           child: Column(
             children: [
               Expanded(
                 child: Container(
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: ColorManager.containerGray,
-                    borderRadius: BorderRadius.circular(Sizes.s12.r),
-                    border: Border.all(color: ColorManager.grey2, width: 1.w),
-                    image: DecorationImage(
-                      image: AssetImage(item.imagePath),
-                      fit: BoxFit.cover,
+                    color: const Color(0xFFF8F7FC),
+                    borderRadius: BorderRadius.circular(Sizes.s14.r),
+                    border: Border.all(
+                      color: ColorManager.primary.withValues(alpha: 0.06),
+                      width: 1.w,
+                    ),
+                  ),
+                  child: Image.asset(
+                    item.imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Center(
+                      child: Icon(
+                        Icons.checkroom_outlined,
+                        color: ColorManager.primary.withValues(alpha: 0.4),
+                        size: 24.sp,
+                      ),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: Sizes.s4.h),
+              SizedBox(height: Sizes.s8.h),
               Text(
                 item.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: getMediumStyle(
-                  color: ColorManager.text,
-                  fontsize: FontSize.s12,
+                  color: ColorManager.textPrimary,
+                  fontsize: FontSize.s11.sp,
                 ),
               ),
             ],

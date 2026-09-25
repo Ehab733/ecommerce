@@ -1,4 +1,6 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
+import 'package:ecommerce/core/resources/styles_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,90 +11,120 @@ class CustomBottomNavBar extends StatelessWidget {
 
   const CustomBottomNavBar({super.key, this.onTap, this.currentIndex = 0});
 
+  static const List<_NavItem> _navItems = [
+    _NavItem(
+      label: 'Home',
+      activeIcon: Icons.home_rounded,
+      inactiveIcon: Icons.home_outlined,
+    ),
+    _NavItem(
+      label: 'Categories',
+      activeIcon: Icons.grid_view_rounded,
+      inactiveIcon: Icons.grid_view_outlined,
+    ),
+    _NavItem(
+      label: 'Favorites',
+      activeIcon: Icons.favorite_rounded,
+      inactiveIcon: Icons.favorite_border_rounded,
+    ),
+    _NavItem(
+      label: 'Profile',
+      activeIcon: Icons.person_rounded,
+      inactiveIcon: Icons.person_outline_rounded,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final double bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Container(
-      decoration: BoxDecoration(
-        color: ColorManager.primary,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(Sizes.s20.r),
-          topRight: Radius.circular(Sizes.s20.r),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorManager.primary.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
-          ),
-        ],
+      color: Colors.transparent,
+      padding: EdgeInsets.only(
+        left: Insets.s16.w,
+        right: Insets.s16.w,
+        bottom: bottomPadding > 0 ? bottomPadding : Insets.s12.h,
+        top: Insets.s8.h,
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(Sizes.s20.r),
-          topRight: Radius.circular(Sizes.s20.r),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: ColorManager.primary,
-          unselectedItemColor: ColorManager.white,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          currentIndex: currentIndex,
-          onTap: onTap,
-          items: [
-            BottomNavigationBarItem(
-              activeIcon: activeIcon(Icons.home_outlined),
-              icon: Icon(
-                Icons.home_outlined,
-                color: ColorManager.white,
-                size: Sizes.s24.r,
-              ),
-              label: "Home",
-            ),
-            BottomNavigationBarItem(
-              activeIcon: activeIcon(Icons.grid_view_rounded),
-              icon: Icon(
-                Icons.grid_view_rounded,
-                color: ColorManager.white,
-                size: Sizes.s24.r,
-              ),
-              label: "Categories",
-            ),
-            BottomNavigationBarItem(
-              activeIcon: activeIcon(Icons.favorite_border),
-              icon: Icon(
-                Icons.favorite_border,
-                color: ColorManager.white,
-                size: Sizes.s24.r,
-              ),
-              label: "Wishlist",
-            ),
-            BottomNavigationBarItem(
-              activeIcon: activeIcon(Icons.person_outline),
-              icon: Icon(
-                Icons.person_outline,
-                color: ColorManager.white,
-                size: Sizes.s24.r,
-              ),
-              label: "Profile",
+      child: Container(
+        height: 64.h,
+        padding: EdgeInsets.symmetric(horizontal: Insets.s8.w),
+        decoration: BoxDecoration(
+          color: ColorManager.primary,
+          borderRadius: BorderRadius.circular(Sizes.s32.r),
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.primary.withValues(alpha: 0.35),
+              blurRadius: 20,
+              spreadRadius: -2,
+              offset: const Offset(0, 8),
             ),
           ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(_navItems.length, (index) {
+            final isSelected = currentIndex == index;
+            final item = _navItems[index];
+
+            return InkWell(
+              onTap: () => onTap?.call(index),
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeOutBack,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSelected ? Insets.s14.w : Insets.s10.w,
+                  vertical: Insets.s8.h,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? ColorManager.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(Sizes.s24.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isSelected ? item.activeIcon : item.inactiveIcon,
+                      color: isSelected
+                          ? ColorManager.primary
+                          : ColorManager.white.withValues(alpha: 0.75),
+                      size: 22.sp,
+                    ),
+                    if (isSelected) ...[
+                      SizedBox(width: 6.w),
+                      AnimatedOpacity(
+                        duration: const Duration(milliseconds: 200),
+                        opacity: isSelected ? 1.0 : 0.0,
+                        child: Text(
+                          item.label,
+                          style: getBoldStyle(
+                            color: ColorManager.primary,
+                            fontsize: FontSize.s12.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 }
 
-/// 💫 أداء أنيميشن متناسق للدائرة المفعلة
-Widget activeIcon(IconData iconData) => AnimatedContainer(
-  duration: const Duration(milliseconds: 250),
-  curve: Curves.easeOut,
-  padding: EdgeInsets.all(Insets.s8.r),
-  decoration: const BoxDecoration(
-    color: ColorManager.white,
-    shape: BoxShape.circle,
-  ),
-  child: Icon(iconData, color: ColorManager.primary, size: Sizes.s20.r),
-);
+class _NavItem {
+  final String label;
+  final IconData activeIcon;
+  final IconData inactiveIcon;
+
+  const _NavItem({
+    required this.label,
+    required this.activeIcon,
+    required this.inactiveIcon,
+  });
+}

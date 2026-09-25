@@ -1,30 +1,40 @@
 import 'package:ecommerce/core/resources/color_manager.dart';
+import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UiUtils {
+  static bool _isLoadingShowing = false;
+
+  /// ⏳ عرض نافذة التحميل (Loading Dialog)
   static void showLoading(BuildContext context) {
+    if (_isLoadingShowing) return;
+
+    _isLoadingShowing = true;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.4), // خلفية مظللة بنسبة هادئة
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 250),
+      useRootNavigator: true,
       pageBuilder: (_, _, _) {
         return PopScope(
-          canPop: false, // منع الإغلاق بزر الرجوع
+          canPop: false,
           child: Center(
             child: Dialog(
               elevation: 0,
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.zero,
               child: Container(
-                padding: EdgeInsets.all(24.r),
+                padding: EdgeInsets.all(Insets.s24.r),
                 decoration: BoxDecoration(
                   color: ColorManager.white,
                   shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(16.r),
+                  borderRadius: BorderRadius.circular(Sizes.s16.r),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
@@ -34,39 +44,44 @@ class UiUtils {
                     ),
                   ],
                 ),
-                child: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // أبعاد صريحة تناسب الكارت فقط
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [const LoadingIndicator()],
+                  children: [LoadingIndicator()],
                 ),
               ),
             ),
           ),
         );
       },
-      // 💫 تأثير Zoom In + Fade in
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         return ScaleTransition(
           scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
           child: FadeTransition(opacity: animation, child: child),
         );
       },
-    );
+    ).then((_) {
+      _isLoadingShowing = false;
+    });
   }
 
+  /// ❌ إغلاق نافذة التحميل
   static void hideLoading(BuildContext context) {
-    if (Navigator.canPop(context)) {
+    if (_isLoadingShowing && context.mounted) {
+      _isLoadingShowing = false;
       Navigator.of(context, rootNavigator: true).pop();
     }
   }
 
+  /// 🔔 عرض رسالة تنبيه أو خطأ (SnackBar)
   static void showMessage(
     BuildContext context,
     String message, {
     bool isError = true,
     Duration duration = const Duration(seconds: 3),
   }) {
+    if (!context.mounted) return;
+
     // إغلاق لوحة المفاتيح
     FocusScope.of(context).unfocus();
 
@@ -77,17 +92,23 @@ class UiUtils {
       SnackBar(
         duration: duration,
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.transparent, // شفاف لتمرير الـ Container
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        margin: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 20.h),
+        margin: EdgeInsets.only(
+          left: Insets.s16.w,
+          right: Insets.s16.w,
+          bottom: Insets.s20.h,
+        ),
         padding: EdgeInsets.zero,
-        dismissDirection: DismissDirection
-            .horizontal, // 👈 سحب الرسالة يميناً أو يساراً لإغلاقها
+        dismissDirection: DismissDirection.horizontal,
         content: Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.s14.w,
+            vertical: Insets.s10.h,
+          ),
           decoration: BoxDecoration(
             color: isError ? ColorManager.error : ColorManager.darkPrimary,
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(Sizes.s12.r),
             boxShadow: [
               BoxShadow(
                 color: (isError ? ColorManager.error : ColorManager.darkPrimary)
@@ -99,9 +120,8 @@ class UiUtils {
           ),
           child: Row(
             children: [
-              // 🔔 الأيقونة حسب نوع الرسالة
               Container(
-                padding: EdgeInsets.all(6.r),
+                padding: EdgeInsets.all(Insets.s6.r),
                 decoration: BoxDecoration(
                   color: ColorManager.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
@@ -111,33 +131,28 @@ class UiUtils {
                       ? Icons.error_outline_rounded
                       : Icons.check_circle_outline_rounded,
                   color: ColorManager.white,
-                  size: 20.sp,
+                  size: Sizes.s20.sp,
                 ),
               ),
-              SizedBox(width: 12.w),
-
-              // 📝 نص الرسالة
+              SizedBox(width: Sizes.s12.w),
               Expanded(
                 child: Text(
                   message,
                   style: getMediumStyle(
-                    // 👈 استخدام Medium بدلاً من Regular ليكون أوضح للقراءة
                     color: ColorManager.white,
-                    fontsize: 12.sp,
+                    fontsize: FontSize.s12.sp,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-
-              // ✖️ زر إغلاق سريع (أناقة وسلاسة في الاستخدام)
-              SizedBox(width: 8.w),
+              SizedBox(width: Sizes.s8.w),
               GestureDetector(
                 onTap: () => messenger.hideCurrentSnackBar(),
                 child: Icon(
                   Icons.close_rounded,
                   color: ColorManager.white.withValues(alpha: 0.8),
-                  size: 18.sp,
+                  size: Sizes.s18.sp,
                 ),
               ),
             ],

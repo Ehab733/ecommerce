@@ -24,6 +24,7 @@ class WishListCubit extends Cubit<WishListState> {
   }
 
   Future<void> getWishList() async {
+    if (isClosed) return;
     emit(WishListState.getWishListLoading());
     final response = await _getUserWishlistUsecase();
     response.fold(
@@ -42,6 +43,7 @@ class WishListCubit extends Cubit<WishListState> {
   }
 
   Future<void> addProductToWishList(String productId) async {
+    if (isClosed) return;
     emit(WishListState.addProductToWishListLoading());
 
     final response = await _addProductToWishListUseCase(productId);
@@ -59,6 +61,7 @@ class WishListCubit extends Cubit<WishListState> {
   }
 
   Future<void> deleteProductFromWishList(String productId) async {
+    if (isClosed) return;
     emit(WishListState.deleteProductFromWishListLoading());
     final response = await _deleteProductFromWishlistUsecase(productId);
 

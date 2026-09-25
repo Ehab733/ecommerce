@@ -10,198 +10,299 @@ import 'package:ecommerce/features/wishlist/presentation/manager/cubit/wish_list
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logger/logger.dart';
 
 class ProductCard extends StatelessWidget {
-  final Product _product;
+  final Product product;
 
-  const ProductCard({super.key, required this._product});
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WishListCubit, WishListState>(
-      builder: (context, state) {
-        final wishlistCubit = context.read<WishListCubit>();
-        bool isFavourite = wishlistCubit.favouriteProductIds.contains(
-          _product.id,
-        );
-        return Container(
-          decoration: BoxDecoration(
-            color: ColorManager.white,
-            borderRadius: BorderRadius.circular(10.r),
-            boxShadow: [
-              BoxShadow(
-                color: ColorManager.black.withAlpha(20),
-                blurRadius: 10.r,
-                spreadRadius: 0,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    final hasDiscount =
+        product.priceAfterDiscount != null &&
+        product.priceAfterDiscount! > 0 &&
+        product.priceAfterDiscount != product.price;
+
+    int discountPercent = 0;
+    if (hasDiscount && product.price > 0) {
+      discountPercent =
+          (((product.price - product.priceAfterDiscount!) / product.price) *
+                  100)
+              .round();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: ColorManager.white,
+        borderRadius: BorderRadius.circular(Sizes.s20.r),
+        border: Border.all(
+          color: ColorManager.primary.withValues(alpha: 0.08),
+          width: 1.w,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            spreadRadius: 0,
+            offset: const Offset(0, 8),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // 👈 يلغي التمدد الرأسي
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1️⃣ إطار الصورة التفاعلي + الأيقونات المضيئة
+          Stack(
             children: [
-              // 🖼️ 1. صورة المنتج
-              Stack(
-                children: [
-                  ClipRRect(
+              Container(
+                height: 140.h,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      ColorManager.primary.withValues(alpha: 0.03),
+                      ColorManager.primary.withValues(alpha: 0.08),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(Sizes.s20.r),
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(Insets.s8.r),
+                  child: ClipRRect(
                     borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(10.r),
+                      top: Radius.circular(Sizes.s16.r),
                     ),
                     child: CachedNetworkImage(
-                      imageUrl: _product.imageCover,
-                      height: 125.h,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        height: 125.h,
-                        color: ColorManager.grey,
-                        child: const Center(
-                          child: CircularProgressIndicator(
+                      imageUrl: product.imageCover,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => Center(
+                        child: SizedBox(
+                          width: 20.r,
+                          height: 20.r,
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
                             color: ColorManager.primary,
                           ),
                         ),
                       ),
-                      errorWidget: (context, url, error) => Container(
-                        height: 125.h,
-                        color: Colors.grey.shade100,
-                        child: Icon(
-                          Icons.broken_image_rounded,
-                          color: ColorManager.lightGrey,
-                          size: Sizes.s28.sp,
-                        ),
+                      errorWidget: (context, url, error) => Icon(
+                        Icons.broken_image_rounded,
+                        color: ColorManager.grey,
+                        size: Sizes.s28.sp,
                       ),
                     ),
                   ),
-
-                  // ❤️ زر المفضلة
-                  Positioned(
-                    right: 6.w,
-                    top: 6.h,
-                    child: InkWell(
-                      onTap: () {
-                        if (isFavourite) {
-                          wishlistCubit.deleteProductFromWishList(_product.id);
-                        } else {
-                          wishlistCubit.addProductToWishList(_product.id);
-                        }
-                        // تحديث حالة المفضلة بعد
-                      },
-                      borderRadius: BorderRadius.circular(50.r),
-                      child: Container(
-                        padding: EdgeInsets.all(5.r),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorManager.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: ColorManager.black.withAlpha(25),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          isFavourite
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: isFavourite
-                              ? const Color(0xFFEB3003)
-                              : const Color(0xFFA8A8A8),
-                          size: 15.sp,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
 
-              // 📝 2. تفاصيل المنتج والتقييم والسعر
-              Padding(
-                padding: EdgeInsets.all(8.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min, // 👈 يلم العناصر جنب بعضها
-                  children: [
-                    Text(
-                      _product.title,
-                      style: getBoldStyle(color: ColorManager.black),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+              // 🏷️ شارة الخصم العصري المتدرجة
+              if (hasDiscount && discountPercent > 0)
+                Positioned(
+                  left: Insets.s10.w,
+                  top: Insets.s10.h,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Insets.s8.w,
+                      vertical: Insets.s4.h,
                     ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      _product.description,
-                      style: getRegularStyle(
-                        color: ColorManager.grey,
-                        fontsize: FontSize.s10,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF5252), Color(0xFFFF1744)],
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    SizedBox(height: 6.h),
-                    Row(
-                      children: [
-                        Visibility(
-                          visible:
-                              _product.priceAfterDiscount != null &&
-                              _product.priceAfterDiscount != 0.0,
-                          child: Text(
-                            "EGP ${_product.priceAfterDiscount}",
-                            style: getBoldStyle(color: ColorManager.primary),
-                          ),
-                        ),
-                        Text(
-                          "EGP ${_product.price}",
-                          style:
-                              _product.priceAfterDiscount != null &&
-                                  _product.priceAfterDiscount != 0.0
-                              ? getTextWithLine()
-                              : getBoldStyle(color: ColorManager.primary),
+                      borderRadius: BorderRadius.circular(Sizes.s12.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF1744).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    SizedBox(height: 8.h),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: List.generate(
-                            5,
-                            (index) => Icon(
-                              index < (_product.ratingsAverage).round()
-                                  ? Icons.star_rounded
-                                  : Icons.star_outline_rounded,
-                              color: index < (_product.ratingsAverage).round()
-                                  ? ColorManager.starRate
+                    child: Text(
+                      '-$discountPercent%',
+                      style: getBoldStyle(
+                        color: ColorManager.white,
+                        fontsize: FontSize.s10.sp,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ❤️ زر المفضلة الدائري
+              Positioned(
+                right: Insets.s10.w,
+                top: Insets.s10.h,
+                child: BlocBuilder<WishListCubit, WishListState>(
+                  builder: (context, state) {
+                    final wishlistCubit = context.read<WishListCubit>();
+                    final isFavourite = wishlistCubit.favouriteProductIds
+                        .contains(product.id);
+
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          if (isFavourite) {
+                            wishlistCubit.deleteProductFromWishList(product.id);
+                          } else {
+                            wishlistCubit.addProductToWishList(product.id);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(Sizes.s50.r),
+                        child: Container(
+                          padding: EdgeInsets.all(Insets.s8.r),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: ColorManager.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: ColorManager.black.withValues(
+                                  alpha: 0.1,
+                                ),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            transitionBuilder: (child, animation) =>
+                                ScaleTransition(scale: animation, child: child),
+                            child: Icon(
+                              isFavourite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+                              key: ValueKey<bool>(isFavourite),
+                              color: isFavourite
+                                  ? const Color(0xFFFF2D55)
                                   : ColorManager.grey,
-                              size: 14.sp,
+                              size: 16.sp,
                             ),
                           ),
                         ),
-                        SizedBox(width: 3.w),
-                        Expanded(
-                          child: Text(
-                            "${_product.ratingsQuantity} reviews",
-                            style: getRegularStyle(
-                              color: ColorManager.grey,
-                              fontsize: FontSize.s11,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        AnimatedAddToCartButton(productId: _product.id),
-                      ],
-                    ),
-                  ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
-        );
-      },
+
+          // 2️⃣ النصوص والتفاصيل والأسعار
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(Insets.s12.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // كبسولة التقييم
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Insets.s6.w,
+                          vertical: Insets.s2.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: ColorManager.starRate.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(Sizes.s8.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.star_rounded,
+                              color: ColorManager.starRate,
+                              size: 13.sp,
+                            ),
+                            SizedBox(width: 3.w),
+                            Text(
+                              product.ratingsAverage.toStringAsFixed(1),
+                              style: getBoldStyle(
+                                color: ColorManager.textPrimary,
+                                fontsize: FontSize.s10.sp,
+                              ),
+                            ),
+                            Text(
+                              " (${product.ratingsQuantity})",
+                              style: getRegularStyle(
+                                color: ColorManager.grey,
+                                fontsize: FontSize.s10.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: Sizes.s8.h),
+
+                      Text(
+                        product.title,
+                        style: getBoldStyle(
+                          color: ColorManager.textPrimary,
+                          fontsize: FontSize.s13.sp,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      SizedBox(height: Sizes.s2.h),
+                      Text(
+                        product.description,
+                        style: getRegularStyle(
+                          color: ColorManager.grey,
+                          fontsize: FontSize.s10.sp,
+                        ).copyWith(height: 1.2),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+
+                  // الأسعار وزر الإضافة للسلة
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (hasDiscount)
+                              Text(
+                                "EGP ${product.price}",
+                                style: getTextWithLine().copyWith(
+                                  fontSize: FontSize.s10.sp,
+                                  color: ColorManager.grey,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            Text(
+                              "EGP ${hasDiscount ? product.priceAfterDiscount : product.price}",
+                              style: getBoldStyle(
+                                color: ColorManager.primary,
+                                fontsize: FontSize.s14.sp,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: Sizes.s4.w),
+                      AnimatedAddToCartButton(productId: product.id),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

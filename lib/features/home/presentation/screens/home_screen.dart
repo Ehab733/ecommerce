@@ -20,74 +20,149 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int currentIndex = 0;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(
+        0xFFFAF9FF,
+      ), // خلفية فاخرة وناعمة متناسقة مع باقي الشاشات
       appBar: customHeader(
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.shopping_cart_outlined,
-              size: Sizes.s28,
-              color: ColorManager.primary,
+          // 🛒 زر السلة بتصميم دائري فاخر مع تأثير خفيف
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: Insets.s8.w),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => context.push(Routes.cart),
+                borderRadius: BorderRadius.circular(Sizes.s16.r),
+                child: Container(
+                  padding: EdgeInsets.all(Insets.s8.r),
+                  decoration: BoxDecoration(
+                    color: ColorManager.primary.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(Sizes.s16.r),
+                    border: Border.all(
+                      color: ColorManager.primary.withValues(alpha: 0.12),
+                      width: 1.w,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.shopping_cart_outlined,
+                    size: Sizes.s20.sp,
+                    color: ColorManager.primary,
+                  ),
+                ),
+              ),
             ),
-            onPressed: () => context.push(Routes.cart),
           ),
         ],
       ),
-      backgroundColor: ColorManager.white,
-      body: IndexedStack(
-        index: currentIndex,
+      body: Stack(
         children: [
-          // 🏠 Tab 0: Home Content
-          CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [_buildSliverSearchBar(), const HomeScreenContent()],
+          // 🎨 توهج خفيف في الخلفية لتعزيز طابع الفخامة
+          Positioned(
+            top: -60.h,
+            right: -40.w,
+            child: Container(
+              width: 220.w,
+              height: 220.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: ColorManager.primary.withValues(alpha: 0.05),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorManager.primary.withValues(alpha: 0.08),
+                    blurRadius: 60,
+                    spreadRadius: 10,
+                  ),
+                ],
+              ),
+            ),
           ),
 
-          // 🗂️ Tab 1: Categories
-          // 💡 نضع CategoriesTab مباشرة دون CustomScrollView خارجي لمنع التعارض
-          Column(
+          // المحتوى الأساسي والتبويبات
+          IndexedStack(
+            index: _currentIndex,
             children: [
-              customSearch(context),
-              const Expanded(child: CategoriesTab()),
+              // 🏠 Tab 0: Home Page
+              CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [_buildSliverSearchBar(), const HomeScreenContent()],
+              ),
+
+              // 🗂️ Tab 1: Categories Page
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Insets.s20.w,
+                      vertical: Insets.s8.h,
+                    ),
+                    child: customSearch(),
+                  ),
+                  const Expanded(child: CategoriesTab()),
+                ],
+              ),
+
+              // ❤️ Tab 2: Wishlist Page
+              CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [_buildSliverSearchBar(), const WishlistTab()],
+              ),
+
+              // 👤 Tab 3: Profile Page
+              const CustomScrollView(
+                physics: BouncingScrollPhysics(),
+                slivers: [ProfileScreen()],
+              ),
             ],
           ),
-
-          // ❤️ Tab 2: Wishlist
-          CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [_buildSliverSearchBar(), const WishlistTab()],
-          ),
-
-          // 👤 Tab 3: Profile Screen
-          const CustomScrollView(
-            physics: BouncingScrollPhysics(),
-            slivers: [ProfileScreen()],
-          ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        currentIndex: currentIndex,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: ColorManager.white,
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.black.withValues(alpha: 0.05),
+              blurRadius: 15,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: CustomBottomNavBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              if (_currentIndex != index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              }
+            },
+          ),
+        ),
       ),
     );
   }
 
+  // 🔍 شريط البحث الثابت أثناء التمرير بتصميم متناسق
   Widget _buildSliverSearchBar() {
     return SliverAppBar(
       pinned: true,
+      floating: true,
+      snap: false,
+      automaticallyImplyLeading: false,
       scrolledUnderElevation: 0.0,
       surfaceTintColor: Colors.transparent,
-      toolbarHeight: 80.h,
-      backgroundColor: ColorManager.white,
-      title: customSearch(context),
+      toolbarHeight: 74.h,
+      backgroundColor: const Color(0xFFFAF9FF),
+      title: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Insets.s4.w),
+        child: customSearch(),
+      ),
     );
   }
 }

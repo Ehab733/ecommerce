@@ -27,69 +27,67 @@ class CartItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: ColorManager.white,
         borderRadius: BorderRadius.circular(Sizes.s16.r),
-        border: Border.all(color: ColorManager.grey2, width: 1.w),
+        border: Border.all(
+          color: ColorManager.lightGrey.withValues(alpha: 0.3),
+          width: 1.w,
+        ),
         boxShadow: [
           BoxShadow(
-            color: ColorManager.black.withAlpha(10),
-            blurRadius: 10,
+            color: ColorManager.black.withValues(alpha: 0.03),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         children: [
-          // 🖼️ صورة المنتج داخل حاوية رمادية ناعمة
-          Container(
-            height: 110.h,
-            width: 105.w,
-            decoration: BoxDecoration(
-              color: ColorManager.containerGray,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(Sizes.s16.r),
-                bottomLeft: Radius.circular(Sizes.s16.r),
-              ),
-            ),
+          // 🖼️ صورة المنتج بلمسة ناعمة
+          Padding(
+            padding: EdgeInsets.all(Insets.s8.r),
             child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(Sizes.s16.r),
-                bottomLeft: Radius.circular(Sizes.s16.r),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: cartItemData.product.imageCover,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Center(
-                  child: SizedBox(
-                    width: Sizes.s20.w,
-                    height: Sizes.s20.h,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: ColorManager.primary,
+              borderRadius: BorderRadius.circular(Sizes.s12.r),
+              child: Container(
+                height: 96.h,
+                width: 90.w,
+                color: ColorManager.lightGrey.withValues(alpha: 0.12),
+                child: CachedNetworkImage(
+                  imageUrl: cartItemData.product.imageCover,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: SizedBox.square(
+                      dimension: Sizes.s18.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: ColorManager.primary,
+                      ),
                     ),
                   ),
-                ),
-                errorWidget: (context, url, error) => Icon(
-                  Icons.broken_image_rounded,
-                  color: ColorManager.lightGrey,
-                  size: Sizes.s28.sp,
+                  errorWidget: (context, url, error) => Icon(
+                    Icons.broken_image_rounded,
+                    color: ColorManager.lightGrey,
+                    size: Sizes.s24.sp,
+                  ),
                 ),
               ),
             ),
           ),
 
-          // 📝 تفاصيل المنتج وزر العداد
+          // 📝 تفاصيل المنتج وسعر العناصر والعداد
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: Insets.s12.w,
-                vertical: Insets.s10.h,
+              padding: EdgeInsets.only(
+                top: Insets.s10.h,
+                bottom: Insets.s10.h,
+                right: Insets.s12.w,
+                left: Insets.s4.w,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // 📌 العنوان + زر الحذف
+                  // 📌 اسم المنتج + زر الحذف
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
@@ -97,51 +95,54 @@ class CartItemCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: getBoldStyle(
-                            color: ColorManager.text,
-                            fontsize: FontSize.s15,
+                            color: ColorManager.textPrimary,
+                            fontsize: FontSize.s14.sp,
                           ),
                         ),
                       ),
+                      SizedBox(width: Sizes.s8.w),
                       InkWell(
                         onTap: onDelete,
-                        borderRadius: BorderRadius.circular(Sizes.s20.r),
+                        borderRadius: BorderRadius.circular(Sizes.s12.r),
                         child: Padding(
-                          padding: EdgeInsets.all(Insets.s4.r),
+                          padding: EdgeInsets.all(Insets.s2.r),
                           child: Icon(
                             Icons.delete_outline_rounded,
-                            color: ColorManager.error,
-                            size: Sizes.s20.r,
+                            color: ColorManager.error.withValues(alpha: 0.85),
+                            size: 18.sp,
                           ),
                         ),
                       ),
                     ],
                   ),
+
                   SizedBox(height: Sizes.s4.h),
 
-                  // 🎨 اختيار اللون والمقاس (Visual Details)
+                  // 🎨 الخصائص الفرعية (اللون / المقاس)
                   Row(
                     children: [
                       Container(
-                        width: Sizes.s12.r,
-                        height: Sizes.s12.r,
+                        width: 10.r,
+                        height: 10.r,
                         decoration: const BoxDecoration(
                           color: ColorManager.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: Sizes.s4.w),
+                      SizedBox(width: Sizes.s8.w),
                       Text(
                         'Size: 40',
                         style: getRegularStyle(
-                          color: ColorManager.grey,
-                          fontsize: FontSize.s12,
+                          color: ColorManager.textSecondary,
+                          fontsize: FontSize.s11.sp,
                         ),
                       ),
                     ],
                   ),
+
                   SizedBox(height: Sizes.s12.h),
 
-                  // 💰 السعر + كبسولة العداد (Quantity Stepper)
+                  // 💰 السعر الإجمالي + كبسولة العداد (Stepper)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -149,17 +150,21 @@ class CartItemCard extends StatelessWidget {
                         "EGP ${(cartItemData.count * cartItemData.price)}",
                         style: getBoldStyle(
                           color: ColorManager.primary,
-                          fontsize: FontSize.s16,
+                          fontsize: FontSize.s15.sp,
                         ),
                       ),
 
-                      // 🔢 كبسولة التحكم بالكمية
+                      // 🔢 كبسولة التحكم بالكمية الزجاجية/الفاخرة
                       Container(
                         height: 32.h,
                         padding: EdgeInsets.symmetric(horizontal: Insets.s4.w),
                         decoration: BoxDecoration(
-                          color: ColorManager.primary,
+                          color: ColorManager.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(Sizes.s20.r),
+                          border: Border.all(
+                            color: ColorManager.primary.withValues(alpha: 0.15),
+                            width: 1.w,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -167,36 +172,44 @@ class CartItemCard extends StatelessWidget {
                             InkWell(
                               onTap: onDecrement,
                               borderRadius: BorderRadius.circular(Sizes.s12.r),
-                              child: Padding(
+                              child: Container(
                                 padding: EdgeInsets.all(Insets.s4.r),
+                                decoration: const BoxDecoration(
+                                  color: ColorManager.white,
+                                  shape: BoxShape.circle,
+                                ),
                                 child: Icon(
                                   Icons.remove_rounded,
-                                  color: ColorManager.white,
-                                  size: Sizes.s16.r,
+                                  color: ColorManager.primary,
+                                  size: 14.sp,
                                 ),
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                horizontal: Insets.s8.w,
+                                horizontal: Insets.s10.w,
                               ),
                               child: Text(
                                 cartItemData.count.toString(),
-                                style: getSemiBoldStyle(
-                                  color: ColorManager.white,
-                                  fontsize: FontSize.s14,
+                                style: getBoldStyle(
+                                  color: ColorManager.primary,
+                                  fontsize: FontSize.s13.sp,
                                 ),
                               ),
                             ),
                             InkWell(
                               onTap: onIncrement,
                               borderRadius: BorderRadius.circular(Sizes.s12.r),
-                              child: Padding(
+                              child: Container(
                                 padding: EdgeInsets.all(Insets.s4.r),
+                                decoration: const BoxDecoration(
+                                  color: ColorManager.primary,
+                                  shape: BoxShape.circle,
+                                ),
                                 child: Icon(
                                   Icons.add_rounded,
                                   color: ColorManager.white,
-                                  size: Sizes.s16.r,
+                                  size: 14.sp,
                                 ),
                               ),
                             ),

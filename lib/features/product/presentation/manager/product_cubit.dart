@@ -11,6 +11,7 @@ class ProductCubit extends Cubit<GetProductState> {
   ProductCubit(this._productUsecase) : super(GetProductState.initial());
 
   Future<void> getProducts(String? categoryId, {int page = 1}) async {
+    if (isClosed) return;
     emit(GetProductState.loading());
     final response = await _productUsecase(categoryId);
 

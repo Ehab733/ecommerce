@@ -19,42 +19,86 @@ class ProductHeaderInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasDiscount =
+        priceAfterDiscount != null &&
+        priceAfterDiscount! > 0 &&
+        priceAfterDiscount! < price;
+
+    // حساب نسبة الخصم لمظهر فاخر ومحفز للشراء
+    int discountPercent = 0;
+    if (hasDiscount) {
+      discountPercent = (((price - priceAfterDiscount!) / price) * 100).round();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 1️⃣ اسم المنتج مع معالجة النصوص الطويلة لمنع الـ Overflow
+        // 1️⃣ اسم المنتج بوزن خطي أنيق وواضح
         Text(
           title,
-          style: getMediumStyle(
-            color: ColorManager.text,
-            fontsize: FontSize.s18,
-          ),
+          style: getBoldStyle(
+            color: ColorManager.textPrimary,
+            fontsize: FontSize.s18.sp,
+          ).copyWith(height: 1.3),
         ),
-        SizedBox(height: Sizes.s18.w),
+        SizedBox(height: Insets.s10.h),
 
-        // 2️⃣ السعر
+        // 2️⃣ قسم الأسعار وتخفيضات العرض
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Visibility(
-              visible: (priceAfterDiscount != null && priceAfterDiscount! > 0),
-              child: Text(
-                "EGP ${priceAfterDiscount.toString()}",
-                style: getMediumStyle(
+            if (hasDiscount) ...[
+              // السعر بعد الخصم
+              Text(
+                "EGP ${priceAfterDiscount!.toStringAsFixed(2)}",
+                style: getBoldStyle(
                   color: ColorManager.primary,
-                  fontsize: FontSize.s18,
+                  fontsize: FontSize.s20.sp,
                 ),
               ),
-            ),
-            SizedBox(height: 8.w),
-            Text(
-              "EGP ${price.toString()}",
-              style: priceAfterDiscount == null && priceAfterDiscount! > 0
-                  ? getMediumStyle(
-                      color: ColorManager.primary,
-                      fontsize: FontSize.s18,
-                    )
-                  : getTextWithLine(color: ColorManager.text),
-            ),
+              SizedBox(width: Insets.s10.w),
+
+              // السعر القديم المشطوب
+              Text(
+                "EGP ${price.toStringAsFixed(2)}",
+                style: getTextWithLine(
+                  color: ColorManager.grey,
+                ).copyWith(fontSize: FontSize.s13.sp, height: 1.2),
+              ),
+              const Spacer(),
+
+              // شارة نسبة الخصم الفاخرة
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Insets.s8.w,
+                  vertical: Insets.s4.h,
+                ),
+                decoration: BoxDecoration(
+                  color: ColorManager.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(Sizes.s8.r),
+                  border: Border.all(
+                    color: ColorManager.primary.withValues(alpha: 0.2),
+                    width: 1.w,
+                  ),
+                ),
+                child: Text(
+                  "$discountPercent% OFF",
+                  style: getBoldStyle(
+                    color: ColorManager.primary,
+                    fontsize: FontSize.s11.sp,
+                  ),
+                ),
+              ),
+            ] else ...[
+              // السعر العادي في حال عدم وجود خصم
+              Text(
+                "EGP ${price.toStringAsFixed(2)}",
+                style: getBoldStyle(
+                  color: ColorManager.primary,
+                  fontsize: FontSize.s20.sp,
+                ),
+              ),
+            ],
           ],
         ),
       ],

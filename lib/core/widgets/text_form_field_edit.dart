@@ -13,13 +13,15 @@ class TextFormFieldEdit extends StatefulWidget {
   final bool isPassword;
   final int? maxLength;
   final bool prefixIcon;
-  final Icon? icon;
+  final Widget? icon;
   final double? radius;
-
-  // 💡 إضافة بروب جديدة لتحديد ما إذا كانت الشاشة ذات خلفية داكنة أو بيضاء
   final bool isDarkBackground;
   final Color? textColor;
   final Color? borderColor;
+  final ValueChanged<String>? onChanged;
+  final TextInputAction? textInputAction;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const TextFormFieldEdit({
     super.key,
@@ -32,9 +34,13 @@ class TextFormFieldEdit extends StatefulWidget {
     this.validator,
     this.icon,
     this.radius,
-    this.isDarkBackground = false, // 👈 القيمة الافتراضية خلفية بيضاء
+    this.isDarkBackground = false,
     this.textColor,
     this.borderColor,
+    this.onChanged,
+    this.textInputAction,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -42,131 +48,158 @@ class TextFormFieldEdit extends StatefulWidget {
 }
 
 class _TextFormFieldEditState extends State<TextFormFieldEdit> {
-  late bool hidePassword = widget.isPassword;
+  late bool _hidePassword;
+
+  @override
+  void initState() {
+    super.initState();
+    _hidePassword = widget.isPassword;
+  }
+
+  @override
+  void didUpdateWidget(covariant TextFormFieldEdit oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isPassword != widget.isPassword) {
+      _hidePassword = widget.isPassword;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 🎨 تحديد ألوان العناصر حسب نوع الخلفية (داكنة أم فاتحة)
+    // 🎨 تحديد ألوان العناصر بحسب الخلفية
     final effectiveTextColor =
         widget.textColor ??
-        (widget.isDarkBackground ? ColorManager.white : ColorManager.primary);
+        (widget.isDarkBackground
+            ? ColorManager.white
+            : ColorManager.textPrimary);
+
+    final effectiveFillColor = widget.isDarkBackground
+        ? ColorManager.white.withValues(alpha: 0.08)
+        : ColorManager.primary.withValues(alpha: 0.03);
 
     final effectiveBorderColor =
         widget.borderColor ??
         (widget.isDarkBackground
-            ? ColorManager.white.withAlpha(100)
-            : ColorManager.primary.withAlpha(80));
+            ? ColorManager.white.withValues(alpha: 0.2)
+            : ColorManager.primary.withValues(alpha: 0.12));
 
     final effectiveFocusedBorderColor = widget.isDarkBackground
         ? ColorManager.white
         : ColorManager.primary;
 
     final effectiveLabelColor = widget.isDarkBackground
-        ? ColorManager.white.withAlpha(170)
+        ? ColorManager.white.withValues(alpha: 0.6)
         : ColorManager.grey;
+
+    final effectiveRadius = widget.radius?.r ?? Sizes.s16.r;
 
     return TextFormField(
       controller: widget.controller,
       validator: widget.validator,
-      obscureText: hidePassword,
+      obscureText: _hidePassword,
       keyboardType: widget.keyboardType,
       maxLength: widget.maxLength,
-
-      // ✍️ لون ونمط النص المدخل
+      onChanged: widget.onChanged,
+      textInputAction: widget.textInputAction,
+      readOnly: widget.readOnly,
+      onTap: widget.onTap,
       style: getMediumStyle(
         color: effectiveTextColor,
-        fontsize: FontSize.s15.sp,
+        fontsize: FontSize.s14.sp,
       ),
-
       decoration: InputDecoration(
         counterText: "",
-        filled: false,
+        filled: true,
+        fillColor: effectiveFillColor,
         contentPadding: EdgeInsets.symmetric(
           horizontal: Insets.s16.w,
-          vertical: Insets.s16.h,
+          vertical: Insets.s14.h,
         ),
-
-        // 💫 الـ Label وتنسيقه
         labelText: widget.label,
-        labelStyle: getLightStyle(
+        labelStyle: getRegularStyle(
           color: effectiveLabelColor,
-          fontsize: FontSize.s15.sp,
-        ),
-        floatingLabelStyle: getMediumStyle(
-          color: effectiveFocusedBorderColor,
           fontsize: FontSize.s14.sp,
         ),
-
-        // 1️⃣ الحدود في الحالة العادية
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.r),
-          borderSide: BorderSide(color: effectiveBorderColor, width: 1.2),
+        floatingLabelStyle: getBoldStyle(
+          color: effectiveFocusedBorderColor,
+          fontsize: FontSize.s13.sp,
         ),
 
-        // 2️⃣ الحدود عند الكتابة والتركيز (Focus)
+        // 1️⃣ الحدود العادية (Default Enabled)
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(effectiveRadius),
+          borderSide: BorderSide(color: effectiveBorderColor, width: 1.w),
+        ),
+
+        // 2️⃣ الحدود عند التركيز (Focus State)
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.r),
+          borderRadius: BorderRadius.circular(effectiveRadius),
           borderSide: BorderSide(
             color: effectiveFocusedBorderColor,
-            width: 1.8,
+            width: 1.5.w,
           ),
         ),
 
-        // 3️⃣ الحدود عند الخطأ
+        // 3️⃣ الحدود عند الخطأ (Error State)
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.r),
-          borderSide: BorderSide(color: ColorManager.error, width: 1.2),
+          borderRadius: BorderRadius.circular(effectiveRadius),
+          borderSide: BorderSide(
+            color: ColorManager.error.withValues(alpha: 0.6),
+            width: 1.w,
+          ),
         ),
 
-        // 4️⃣ الحدود عند التركيز مع وجود خطأ
+        // 4️⃣ الحدود عند التركيز والخطأ
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(widget.radius ?? Insets.s14.r),
-          borderSide: BorderSide(color: ColorManager.error, width: 1.8),
+          borderRadius: BorderRadius.circular(effectiveRadius),
+          borderSide: BorderSide(color: ColorManager.error, width: 1.5.w),
         ),
 
         errorStyle: getMediumStyle(
           color: ColorManager.error,
-          fontsize: FontSize.s12.sp,
+          fontsize: FontSize.s11.sp,
         ),
 
-        prefixIcon: widget.prefixIcon ? widget.icon : null,
+        // 🔍 الأيقونة الأمامية
+        prefixIcon: widget.prefixIcon && widget.icon != null
+            ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: Insets.s12.w),
+                child: IconTheme(
+                  data: IconThemeData(
+                    color: effectiveFocusedBorderColor.withValues(alpha: 0.8),
+                    size: 20.sp,
+                  ),
+                  child: widget.icon!,
+                ),
+              )
+            : null,
 
         // 👁️ أنيميشن إظهار/إخفاء كلمة المرور
         suffixIcon: widget.isPassword
-            ? AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return RotationTransition(
-                    turns: Tween<double>(
-                      begin: 0.75,
-                      end: 1.0,
-                    ).animate(animation),
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                child: hidePassword
-                    ? IconButton(
-                        key: const ValueKey('icon1'),
-                        onPressed: () {
-                          setState(() => hidePassword = false);
-                        },
-                        icon: Icon(
-                          Icons.visibility_sharp,
-                          color: effectiveFocusedBorderColor,
-                          size: Sizes.s20.sp,
-                        ),
-                      )
-                    : IconButton(
-                        key: const ValueKey('icon2'),
-                        onPressed: () {
-                          setState(() => hidePassword = true);
-                        },
-                        icon: Icon(
-                          Icons.visibility_off_sharp,
-                          color: effectiveFocusedBorderColor,
-                          size: Sizes.s20.sp,
-                        ),
-                      ),
+            ? Padding(
+                padding: EdgeInsets.only(right: Insets.s4.w),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) {
+                    return ScaleTransition(
+                      scale: animation,
+                      child: FadeTransition(opacity: animation, child: child),
+                    );
+                  },
+                  child: IconButton(
+                    key: ValueKey<bool>(_hidePassword),
+                    onPressed: () {
+                      setState(() => _hidePassword = !_hidePassword);
+                    },
+                    icon: Icon(
+                      _hidePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: effectiveFocusedBorderColor.withValues(alpha: 0.7),
+                      size: 20.sp,
+                    ),
+                  ),
+                ),
               )
             : null,
       ),

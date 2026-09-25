@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 class APIConstants {
   static const String baseURL = 'https://ecommerce.routemisr.com/api/v1/';
   static const String loginEndPoint = 'auth/signin';
@@ -14,4 +16,9 @@ class APIConstants {
 
 class CasheConstants {
   static const String tokenKey = 'token';
+}
+
+class AppConstants {
+  static const SystemUiOverlayStyle systemUiOverlayStyle =
+      SystemUiOverlayStyle.light;
 }

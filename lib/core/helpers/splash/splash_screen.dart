@@ -1,8 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:ecommerce/core/contants/constants.dart';
+import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/font_manager.dart';
 import 'package:ecommerce/core/resources/styles_manager.dart';
+import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +28,9 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _textFadeAnimation;
   late Animation<Offset> _textSlideAnimation;
 
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -31,28 +39,30 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _initAnimation() {
+    // 1️⃣ تحكم أنيميشن اللوجو (دوران وانبثاق ناعم)
     _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 1200),
     );
 
     _logoScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: const Interval(0.0, 0.7, curve: Curves.easeOutBack),
+        curve: const Interval(0.0, 0.75, curve: Curves.easeOutBack),
       ),
     );
 
-    _logoRotationAnimation = Tween<double>(begin: 0.0, end: 1.25).animate(
+    _logoRotationAnimation = Tween<double>(begin: -0.5, end: 0.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: const Interval(0.0, 0.85, curve: Curves.easeInOutCubic),
+        curve: const Interval(0.0, 0.85, curve: Curves.easeOutCubic),
       ),
     );
 
+    // 2️⃣ تحكم أنيميشن ظهور النص والشعار
     _textController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 900),
     );
 
     _textFadeAnimation = Tween<double>(
@@ -61,41 +71,52 @@ class _SplashScreenState extends State<SplashScreen>
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
 
     _textSlideAnimation =
-        Tween<Offset>(
-          begin: const Offset(-0.25, 0.0),
-          end: Offset.zero,
-        ).animate(
+        Tween<Offset>(begin: const Offset(0.0, 0.3), end: Offset.zero).animate(
           CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
         );
 
+    // 3️⃣ أنيميشن نبض الوهج خلف اللوجو
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.85, end: 1.15).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
     _logoController.forward().then((_) {
-      if (mounted) _textController.forward();
+      if (mounted) {
+        _textController.forward();
+      }
     });
   }
 
-  // 3️⃣ التوجيه الذكي: Onboarding -> Login -> Home
+  // 📌 التوجيه الذكي
   Future<void> _navigateToNextScreen() async {
-    final results = await Future.wait([
-      SharedPreferences.getInstance(),
-      Future.delayed(const Duration(milliseconds: 2600)),
-    ]);
+    try {
+      final results = await Future.wait([
+        SharedPreferences.getInstance(),
+        Future.delayed(const Duration(milliseconds: 2800)),
+      ]);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    final prefs = results[0] as SharedPreferences;
+      final prefs = results[0] as SharedPreferences;
+      final isFirstTime = prefs.getBool('is_first_time') ?? true;
+      final token = prefs.getString(CasheConstants.tokenKey);
+      final hasToken = token != null && token.isNotEmpty;
 
-    // التحقق هل فتح التطبيق لأول مرة أم لا
-    final isFirstTime = prefs.getBool('is_first_time') ?? true;
-    final token = prefs.getString(CasheConstants.tokenKey);
-    final hasToken = token != null && token.isNotEmpty;
-
-    if (mounted) {
-      if (isFirstTime) {
-        // إذا كانت أول مرة، توجيه للـ Onboarding
-        context.go(Routes.onboarding);
-      } else {
-        // إذا ليست المرة الأولى، توجيه حسب التوكن
-        context.go(hasToken ? Routes.getStartd : Routes.login);
+      if (mounted) {
+        if (isFirstTime) {
+          context.go(Routes.onboarding);
+        } else {
+          context.go(hasToken ? Routes.getStartd : Routes.login);
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        context.go(Routes.login);
       }
     }
   }
@@ -104,88 +125,188 @@ class _SplashScreenState extends State<SplashScreen>
   void dispose() {
     _logoController.dispose();
     _textController.dispose();
+    _pulseController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color logoRed = Color(0xFFF03E51);
-    const Color logoBlue = Color(0xFF3384FD);
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedBuilder(
-              animation: _logoController,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _logoScaleAnimation.value,
-                  child: Transform.rotate(
-                    angle: _logoRotationAnimation.value * 3.14159 * 2,
-                    child: SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 52,
-                              height: 52,
-                              decoration: const BoxDecoration(
-                                color: logoBlue,
-                                shape: BoxShape.circle,
+      backgroundColor: const Color(0xFFFAF9FF),
+      body: Stack(
+        children: [
+          // 🎨 1. خلفية زجاجية فاخرة بتدرج ناعم جداً
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0, -0.2),
+                  radius: 1.2,
+                  colors: [
+                    ColorManager.primary.withValues(alpha: 0.08),
+                    ColorManager.secondary.withValues(alpha: 0.03),
+                    const Color(0xFFFAF9FF),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // 🌟 2. المحتوى الرئيسي بالمنتصف
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // اللوجو الفاخر المتداخل مع تأثير الوهج
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _logoController,
+                    _pulseController,
+                  ]),
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _logoScaleAnimation.value,
+                      child: Transform.rotate(
+                        angle: _logoRotationAnimation.value * math.pi * 2,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // وهج مضيء نبضي خلف الشعار
+                            Transform.scale(
+                              scale: _pulseAnimation.value,
+                              child: Container(
+                                width: 110.w,
+                                height: 110.h,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: ColorManager.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ColorManager.primary.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      blurRadius: 30,
+                                      spreadRadius: 10,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Positioned(
-                            left: 0,
-                            bottom: 0,
-                            child: Container(
-                              width: 52,
-                              height: 52,
-                              decoration: BoxDecoration(
-                                color: logoRed,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 6,
-                                    offset: const Offset(2, 2),
+
+                            // الدوائر المتداخلة للشعار
+                            SizedBox(
+                              width: 86.w,
+                              height: 86.h,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    child: Container(
+                                      width: 54.w,
+                                      height: 54.h,
+                                      decoration: BoxDecoration(
+                                        color: ColorManager.secondary,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: ColorManager.secondary
+                                                .withValues(alpha: 0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(2, 4),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: 2,
+                                    bottom: 2,
+                                    child: Container(
+                                      width: 54.w,
+                                      height: 54.h,
+                                      decoration: BoxDecoration(
+                                        color: ColorManager.primary,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: ColorManager.primary
+                                                .withValues(alpha: 0.35),
+                                            blurRadius: 16,
+                                            offset: const Offset(-2, 4),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                    );
+                  },
+                ),
+
+                SizedBox(height: Sizes.s28.h),
+
+                // النص الاسمي للعلامة التجارية والشعار الفرعي
+                FadeTransition(
+                  opacity: _textFadeAnimation,
+                  child: SlideTransition(
+                    position: _textSlideAnimation,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Stylish',
+                          style: getBoldStyle(
+                            color: ColorManager.text,
+                            fontsize: FontSize.s32.sp,
+                          ).copyWith(letterSpacing: 1.2, height: 1.0),
+                        ),
+                        SizedBox(height: Sizes.s8.h),
+                        Text(
+                          'Elegance in Every Detail',
+                          style: getMediumStyle(
+                            color: ColorManager.grey,
+                            fontsize: FontSize.s12.sp,
+                          ).copyWith(letterSpacing: 2.0),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
+                ),
+              ],
             ),
+          ),
 
-            const SizedBox(width: 16),
-
-            FadeTransition(
-              opacity: _textFadeAnimation,
-              child: SlideTransition(
-                position: _textSlideAnimation,
-                child: Text(
-                  'Stylish',
-                  style: getBoldStyle(
-                    color: logoRed,
-                    fontsize: FontSize.s32,
-                  ).copyWith(fontFamily: 'serif', letterSpacing: 0.5),
+          // ⏳ 3. مؤشر تحكم سفلي أنيق ونحيف
+          Positioned(
+            bottom: 40.h,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: FadeTransition(
+                opacity: _textFadeAnimation,
+                child: SizedBox(
+                  width: 32.w,
+                  height: 3.h,
+                  child: LinearProgressIndicator(
+                    backgroundColor: ColorManager.lightGrey.withValues(
+                      alpha: 0.4,
+                    ),
+                    color: ColorManager.primary,
+                    borderRadius: BorderRadius.circular(2.r),
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
