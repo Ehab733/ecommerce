@@ -1,5 +1,8 @@
 import 'package:ecommerce/core/helpers/get_started/get_started_screen.dart';
 import 'package:ecommerce/core/helpers/onborading/onborading_screen.dart';
+import 'package:ecommerce/core/helpers/promo/promo_screen.dart';
+import 'package:ecommerce/core/helpers/special_offers/special_offers_screen.dart';
+import 'package:ecommerce/core/helpers/splash/splash_screen.dart';
 import 'package:ecommerce/core/routes/routes.dart';
 import 'package:ecommerce/features/auth/presentation/screens/login_screen.dart';
 import 'package:ecommerce/features/auth/presentation/screens/register_screen.dart';
@@ -13,7 +16,7 @@ import 'package:ecommerce/features/product/domain/entities/product.dart';
 import 'package:ecommerce/features/product/presentation/screens/product_details_screen.dart';
 import 'package:ecommerce/features/product/presentation/screens/product_screen.dart';
 import 'package:ecommerce/features/wishlist/presentation/screens/wishlist_screen.dart';
-import 'package:ecommerce/core/helpers/splash/splash_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 abstract class AppRouter {
@@ -30,60 +33,156 @@ abstract class AppRouter {
       ),
       GoRoute(
         path: Routes.login,
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const LoginScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.register,
-        builder: (context, state) => const RegisterScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const RegisterScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.forgetPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.verifyCodeResetPassword,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final email = state.extra as String;
-          return VerificationScreen(email: email);
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: VerificationScreen(email: email),
+          );
         },
       ),
       GoRoute(
         path: Routes.addNewPassword,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final email = state.extra as String;
-          return CreateNewPasswordScreen(email: email);
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: CreateNewPasswordScreen(email: email),
+          );
         },
       ),
       GoRoute(
         path: Routes.getStartd,
-        builder: (context, state) => const GetStartedScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const GetStartedScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const HomeScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.products,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final category = state.extra as Category;
-          return ProductScreen(category: category);
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: ProductScreen(category: category),
+          );
         },
       ),
       GoRoute(
         path: Routes.productsDetails,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final product = state.extra as Product;
-          return ProductDetailsScreen(product: product);
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: ProductDetailsScreen(product: product),
+          );
         },
       ),
       GoRoute(
         path: Routes.cart,
-        builder: (context, state) => const CartScreen(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const CartScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.wishlist,
-        builder: (context, state) => const WishlistTab(),
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const WishlistTab(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.specialOffer,
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: const InStoreOffersScreen(),
+        ),
+      ),
+      // أضف روت جديد للـ Promo
+      // داخل ملف app_router.dart:
+      GoRoute(
+        path: Routes.promoDetails, // تأكد من إضافة المسار في ملف Routes
+        pageBuilder: (context, state) {
+          final args = state.extra as PromoDetailsArguments;
+          return buildPageWithDefaultTransition(
+            context: context,
+            state: state,
+            child: PromoDetailsScreen(arguments: args),
+          );
+        },
       ),
     ],
+  );
+}
+
+CustomTransitionPage<T> buildPageWithDefaultTransition<T>({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<T>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(
+      milliseconds: 300,
+    ), // مدة الانتقال بسلاسة
+    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      // تأثير Fade نعم مع حركة صعود بسيطة جداً لإعطاء طابع فاخر
+      return FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+        child: SlideTransition(
+          position:
+              Tween<Offset>(
+                begin: const Offset(0, 0.03), // تحرك بسيط من أسفل لأعلى
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              ),
+          child: child,
+        ),
+      );
+    },
   );
 }

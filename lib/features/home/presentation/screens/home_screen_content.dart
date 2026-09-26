@@ -1,3 +1,4 @@
+import 'package:ecommerce/core/helpers/promo/promo_screen.dart';
 import 'package:ecommerce/core/resources/color_manager.dart';
 import 'package:ecommerce/core/resources/values_manager.dart';
 import 'package:ecommerce/core/routes/routes.dart';
@@ -32,7 +33,7 @@ class HomeScreenContent extends StatelessWidget {
       // 4️⃣ قسم العروض الخاصة (Special Offers)
       SpecialOffersBanner(
         onTap: () {
-          context.push(Routes.products);
+          context.push(Routes.specialOffer);
         },
       ),
       SizedBox(height: Sizes.s18.h),
@@ -45,12 +46,21 @@ class HomeScreenContent extends StatelessWidget {
         imageUrl:
             'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600',
         onTap: () {
-          context.push(Routes.products);
+          context.push(
+            Routes.promoDetails,
+            extra: const PromoDetailsArguments(
+              title: 'Flat and Heels',
+              subtitle: 'Stand a chance to get rewarded',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600',
+              description:
+                  'Step into sophistication with our exclusive flat and heels curation. Designed for effortless grace and comfort.',
+            ),
+          );
         },
       ),
       SizedBox(height: Sizes.s18.h),
 
-      // 6️⃣ بنر مجموعات الصيف الحديثة (New Arrivals)
       PromoBannerCard(
         title: 'New Arrivals',
         subtitle: 'Summer’ 26 Collections',
@@ -59,7 +69,17 @@ class HomeScreenContent extends StatelessWidget {
             'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600',
         backgroundColor: ColorManager.primary.withValues(alpha: 0.04),
         onTap: () {
-          context.push(Routes.products);
+          context.push(
+            Routes.promoDetails,
+            extra: const PromoDetailsArguments(
+              title: 'New Arrivals',
+              subtitle: 'Summer’ 26 Collections',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600',
+              description:
+                  'Explore the vanguard of summer fashion. Light fabrics, minimalist silhouettes, and unmatched modern luxury.',
+            ),
+          );
         },
       ),
     ];
