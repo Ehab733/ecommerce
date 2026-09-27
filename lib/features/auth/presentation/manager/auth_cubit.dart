@@ -1,18 +1,21 @@
 import 'package:ecommerce/features/auth/data/models/login/login_request.dart';
 import 'package:ecommerce/features/auth/data/models/register/register_request.dart';
+import 'package:ecommerce/features/auth/domain/entities/user.dart';
 import 'package:ecommerce/features/auth/domain/useCases/login_usecase.dart';
 import 'package:ecommerce/features/auth/domain/useCases/logout_usecase.dart';
 import 'package:ecommerce/features/auth/domain/useCases/register_usecase.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ecommerce/features/auth/presentation/manager/auth_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/web.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 @singleton
 class AuthCubit extends Cubit<AuthState> {
   final LoginUsecase _loginUsecase;
   final RegisterUsecase _registerUsecase;
   final LogoutUsecase _logoutUsecase;
+  User? user;
 
   AuthCubit({
     required this._loginUsecase,
@@ -30,7 +33,12 @@ class AuthCubit extends Cubit<AuthState> {
         emit(AuthState.loginError(messageError: error.message));
         Logger().e(error.message);
       },
-      (_) {
+      (data) async {
+        user = data;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('saved_email', request.email);
+        await prefs.setString('saved_password', request.password);
+        await prefs.setBool('is_auto_save', true);
         emit(const AuthState.loginSuccess());
         Logger().d('Success');
       },
