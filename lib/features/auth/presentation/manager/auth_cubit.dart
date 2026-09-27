@@ -21,7 +21,9 @@ class AuthCubit extends Cubit<AuthState> {
     required this._loginUsecase,
     required this._registerUsecase,
     required this._logoutUsecase,
-  }) : super(const AuthState.initial());
+  }) : super(const AuthState.initial()) {
+    _loadStoredUser();
+  }
 
   Future<void> login(LoginRequest request) async {
     emit(const AuthState.loginLoading());
@@ -38,7 +40,9 @@ class AuthCubit extends Cubit<AuthState> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('saved_email', request.email);
         await prefs.setString('saved_password', request.password);
+        await prefs.setString('user_name', data.name);
         await prefs.setBool('is_auto_save', true);
+
         emit(const AuthState.loginSuccess());
         Logger().d('Success');
       },
@@ -71,7 +75,23 @@ class AuthCubit extends Cubit<AuthState> {
 
     result.fold(
       (failure) => emit(AuthState.logoutError(messageError: failure.message)),
-      (_) => emit(const AuthState.logoutSuccess()),
+      (_) async {
+        user = null;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('user_name');
+        emit(const AuthState.logoutSuccess());
+      },
     );
+  }
+
+  Future<void> _loadStoredUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('user_name');
+    final email = prefs.getString('saved_email');
+
+    if (name != null && email != null) {
+      // إعادة بناء كائن الـ user لو البيانات موجودة
+      user = User(name: name, email: email);
+    }
   }
 }
