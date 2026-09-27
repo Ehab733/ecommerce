@@ -30,14 +30,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _phoneController;
   late final TextEditingController _addressController;
 
+  // متغير للتحكم في وضع التعديل (افتراضياً مغلق)
+  bool _isEditing = false;
+
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: 'Ehab Elish');
-    _emailController = TextEditingController(text: 'ehab@gmail.com');
-    _passwordController = TextEditingController(text: 'Ehab123@');
-    _phoneController = TextEditingController(text: '01212357118');
-    _addressController = TextEditingController(text: 'Beba, Beni Suef');
+    final authCubit = context.read<AuthCubit>();
+    final user = authCubit.user;
+
+    _nameController = TextEditingController(text: user?.name ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+    _passwordController = TextEditingController(text: '');
+    _phoneController = TextEditingController(text: '');
+    _addressController = TextEditingController(text: '');
   }
 
   @override
@@ -52,6 +58,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authCubit = context.read<AuthCubit>();
+    final user = authCubit.user;
+    final displayName = user?.name ?? _nameController.text;
+    final displayEmail = user?.email ?? _emailController.text;
+
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -60,120 +71,202 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 1️⃣ هيدر الملف الشخصي (Profile Avatar & Info Header) بتصميم راقي
-              _buildProfileHeader(),
-              SizedBox(height: Insets.s24.h),
-
-              // 2️⃣ حقول البيانات الشخصية (User Details Form)
-              TextFormFieldEdit(
-                label: 'Your full name',
-                controller: _nameController,
-                prefixIcon: true,
-                icon: Icon(
-                  Icons.person_outline_rounded,
-                  color: ColorManager.primary,
+          child: BlocConsumer<AuthCubit, AuthState>(
+            listener: (context, state) {
+              state.whenOrNull(
+                logoutLoading: () => EasyLoading.show(
+                  dismissOnTap: false,
+                  maskType: EasyLoadingMaskType.black,
                 ),
-              ),
-              SizedBox(height: Insets.s16.h),
-
-              TextFormFieldEdit(
-                label: 'Your E-mail',
-                controller: _emailController,
-                prefixIcon: true,
-                icon: Icon(Icons.email_outlined, color: ColorManager.primary),
-              ),
-              SizedBox(height: Insets.s16.h),
-
-              TextFormFieldEdit(
-                label: 'Your password',
-                controller: _passwordController,
-                isPassword: true,
-                prefixIcon: true,
-                icon: Icon(
-                  Icons.lock_outline_rounded,
-                  color: ColorManager.primary,
-                ),
-              ),
-              SizedBox(height: Insets.s16.h),
-
-              TextFormFieldEdit(
-                label: 'Your mobile number',
-                controller: _phoneController,
-                prefixIcon: true,
-                icon: Icon(
-                  Icons.phone_android_outlined,
-                  color: ColorManager.primary,
-                ),
-              ),
-              SizedBox(height: Insets.s16.h),
-
-              TextFormFieldEdit(
-                label: 'Your Address',
-                controller: _addressController,
-                prefixIcon: true,
-                icon: Icon(
-                  Icons.location_on_outlined,
-                  color: ColorManager.primary,
-                ),
-              ),
-              SizedBox(height: Insets.s32.h),
-
-              // 3️⃣ زر تسجيل الخروج (Logout Action)
-              BlocListener<AuthCubit, AuthState>(
-                listener: (context, state) {
-                  state.whenOrNull(
-                    logoutLoading: () => EasyLoading.show(
-                      dismissOnTap: false,
-                      maskType: EasyLoadingMaskType.black,
-                    ),
-                    logoutError: (messageError) async {
-                      await EasyLoading.dismiss();
-                      if (context.mounted) {
-                        UiUtils.showMessage(context, messageError);
-                      }
-                    },
-                    logoutSuccess: () async {
-                      await EasyLoading.dismiss();
-                      if (context.mounted) {
-                        context.go(Routes.login);
-                      }
-                    },
-                  );
+                logoutError: (messageError) async {
+                  await EasyLoading.dismiss();
+                  if (context.mounted) {
+                    UiUtils.showMessage(context, messageError, isError: true);
+                  }
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Sizes.s16.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ColorManager.error.withValues(alpha: 0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButtonEdit(
-                    title: 'Logout',
-                    onPressed: () {
-                      context.read<AuthCubit>().logout();
+                logoutSuccess: () async {
+                  await EasyLoading.dismiss();
+                  if (context.mounted) {
+                    context.go(Routes.login);
+                  }
+                },
+              );
+            },
+            builder: (context, state) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1️⃣ هيدر الملف الشخصي مع زر التبديل لوضع التعديل
+                  _buildProfileHeader(
+                    name: displayName,
+                    email: displayEmail,
+                    onEditPressed: () {
+                      setState(() {
+                        _isEditing = !_isEditing;
+                      });
                     },
-                    backgroundColor: ColorManager.error.withValues(alpha: 0.08),
-                    textColor: ColorManager.error,
                   ),
-                ),
-              ),
-              SizedBox(height: Insets.s32.h),
-            ],
+                  SizedBox(height: Insets.s24.h),
+
+                  // 2️⃣ حقول البيانات الشخصية (تتأثر بـ _isEditing)
+                  TextFormFieldEdit(
+                    label: 'Your full name',
+                    controller: _nameController,
+                    readOnly: !_isEditing,
+                    prefixIcon: true,
+                    icon: Icon(
+                      Icons.person_outline_rounded,
+                      color: ColorManager.primary,
+                    ),
+                  ),
+                  SizedBox(height: Insets.s16.h),
+
+                  TextFormFieldEdit(
+                    label: 'Your E-mail',
+                    controller: _emailController,
+                    readOnly: !_isEditing,
+                    prefixIcon: true,
+                    icon: Icon(
+                      Icons.email_outlined,
+                      color: ColorManager.primary,
+                    ),
+                  ),
+                  SizedBox(height: Insets.s16.h),
+
+                  TextFormFieldEdit(
+                    label: 'Your password',
+                    controller: _passwordController,
+                    readOnly: !_isEditing,
+                    isPassword: true,
+                    prefixIcon: true,
+                    icon: Icon(
+                      Icons.lock_outline_rounded,
+                      color: ColorManager.primary,
+                    ),
+                  ),
+                  SizedBox(height: Insets.s16.h),
+
+                  TextFormFieldEdit(
+                    label: 'Your mobile number',
+                    controller: _phoneController,
+                    readOnly: !_isEditing,
+                    prefixIcon: true,
+                    icon: Icon(
+                      Icons.phone_android_outlined,
+                      color: ColorManager.primary,
+                    ),
+                  ),
+                  SizedBox(height: Insets.s16.h),
+
+                  TextFormFieldEdit(
+                    label: 'Your Address',
+                    controller: _addressController,
+                    readOnly: !_isEditing,
+                    prefixIcon: true,
+                    icon: Icon(
+                      Icons.location_on_outlined,
+                      color: ColorManager.primary,
+                    ),
+                  ),
+                  SizedBox(height: Insets.s32.h),
+
+                  // 3️⃣ زر التحديث (يظهر فقط في حالة التعديل _isEditing == true)
+                  if (_isEditing) ...[
+                    ElevatedButtonEdit(
+                      title: 'Update Profile',
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() {
+                            _isEditing = false;
+                          });
+                          UiUtils.showMessage(
+                            context,
+                            isError: false,
+                            'تم تحديث البيانات بنجاح',
+                          );
+                        }
+                      },
+                      backgroundColor: ColorManager.primary,
+                      textColor: ColorManager.white,
+                    ),
+                    SizedBox(height: Insets.s16.h),
+                  ],
+
+                  // 4️⃣ زر تسجيل الخروج
+                  // استبدل جزء حاوية زر تسجيل الخروج بالكود التالي:
+                  Container(
+                    decoration: BoxDecoration(
+                      color: ColorManager.error.withValues(
+                        alpha: 0.05,
+                      ), // تدرج خفيف ومريح جداً للعين
+                      borderRadius: BorderRadius.circular(Sizes.s14.r),
+                      border: Border.all(
+                        color: ColorManager.error.withValues(
+                          alpha: 0.15,
+                        ), // إطار هادئ وخفيف
+                        width: 1.w,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(Sizes.s14.r),
+                        onTap: () {
+                          context.read<AuthCubit>().logout();
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: Insets.s14.h,
+                            horizontal: Insets.s16.w,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Log out',
+                                style: getMediumStyle(
+                                  color: ColorManager.error,
+                                  fontsize: FontSize.s14.sp,
+                                ),
+                              ),
+                              SizedBox(width: Insets.s8.w),
+                              Icon(
+                                Icons.logout_rounded,
+                                color: ColorManager.error,
+                                size: Sizes.s18.sp,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: Insets.s32.h),
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  // 👤 ويدجيت هيدر المستخدم بصورة شخصية تفاعلية بستايل Minimal Luxury
-  Widget _buildProfileHeader() {
+  // 👤 هيدر الملف الشخصي مع زر التعديل
+  Widget _buildProfileHeader({
+    required String name,
+    required String email,
+    required VoidCallback onEditPressed,
+  }) {
+    String initials = 'EA';
+    if (name.isNotEmpty) {
+      List<String> nameParts = name.trim().split(' ');
+      if (nameParts.length > 1) {
+        initials = '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
+      } else if (nameParts[0].isNotEmpty) {
+        initials = nameParts[0][0].toUpperCase();
+      }
+    }
+
     return Container(
       padding: EdgeInsets.all(Insets.s20.r),
       decoration: BoxDecoration(
@@ -193,70 +286,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Row(
         children: [
-          // الصورة الشخصية مع زر التعديل المضيء
-          Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: ColorManager.primary.withValues(alpha: 0.2),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: Sizes.s32.r,
-                  backgroundColor: ColorManager.primary,
-                  child: Text(
-                    'EE',
-                    style: getBoldStyle(
-                      color: ColorManager.white,
-                      fontsize: FontSize.s20.sp,
-                    ),
-                  ),
-                ),
+          CircleAvatar(
+            radius: Sizes.s32.r,
+            backgroundColor: ColorManager.primary,
+            child: Text(
+              initials,
+              style: getBoldStyle(
+                color: ColorManager.white,
+                fontsize: FontSize.s20.sp,
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: EdgeInsets.all(Insets.s4.r),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: ColorManager.white,
-                    border: Border.all(
-                      color: ColorManager.primary.withValues(alpha: 0.2),
-                      width: 1.w,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ColorManager.black.withValues(alpha: 0.08),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.edit_rounded,
-                    size: Sizes.s12.sp,
-                    color: ColorManager.primary,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
           SizedBox(width: Insets.s18.w),
-
-          // الاسم والبريد بتنسيق متناسق
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome, Ehab Elish',
+                  'Welcome, $name',
                   style: getBoldStyle(
                     color: ColorManager.textPrimary,
                     fontsize: FontSize.s16.sp,
@@ -264,7 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: Insets.s4.h),
                 Text(
-                  'ehab@gmail.com',
+                  email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: getRegularStyle(
@@ -273,6 +320,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          // زر أيقونة التعديل
+          IconButton(
+            onPressed: onEditPressed,
+            icon: Container(
+              padding: EdgeInsets.all(Insets.s8.r),
+              decoration: BoxDecoration(
+                color: _isEditing
+                    ? ColorManager.primary
+                    : ColorManager.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isEditing ? Icons.close_rounded : Icons.edit_outlined,
+                color: _isEditing ? ColorManager.white : ColorManager.primary,
+                size: Sizes.s18.sp,
+              ),
             ),
           ),
         ],
